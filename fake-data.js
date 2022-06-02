@@ -1,12 +1,3 @@
-// const company = { // basic company object
-//     companyID : '0000',
-//     companyName : 'testName',
-//     email : 'testEmail@google.com',
-//     owner : 'John Doe',
-//     phoneNumber : '(800)222-2222',
-//     location : 'nowhere'
-//  };
-
  function company(id,name,email,owner,phoneNumber,location){
     this.id = id;
     this.name = name;
@@ -28,9 +19,7 @@ const comp8 = new company('0008','Cotopaxi','cotopaxi@gmail.com','Davis Smith','
 const comp9 = new company('0009','Lulu Lemon','Lulu@gmail.com','Michael Aragon','(800)111-1119','California');
 const comp10 = new company('0010','Subaru','Subaru@gmail.com','Tomomi Nakamura','(800)111-1121','Japan');
 const fakeData = [comp1,comp2,comp3,comp4,comp5,comp6,comp7,comp8,comp9,comp10];
-module.exports = {fakeData};
 
-//const fakeData = [comp1,comp2,comp3,comp4,comp5,comp6,comp7,comp8,comp9,comp10];
+module.exports = {fakeData}; //preparing data for being exported/imported
 
-//module.exports = {company, dataArray};
 

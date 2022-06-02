@@ -14,37 +14,60 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 })
 
-app.get('/company', async function(req,res)  {
+/*
+query get request
+*/
+app.get('/company', async function (req, res) { 
 
   let id = req.query.id;
   let name = '';
-  for( i = 0; i < data.fakeData.length; i++) { //iterates over the fakeData array looking for id match
-    if(id == data.fakeData[i].id) {
+  for (i = 0; i < data.fakeData.length; i++) { //iterates over the fakeData array looking for id match
+    if (id == data.fakeData[i].id) {
       name = data.fakeData[i].name; // if there is a match sets name variable
       break;
     }
   }
-  if(name == '') { name = "Invalid ID";}
-  res.send("Company: " + name);    
+  try { //catching invalid id errors
+    if (name == '' || id.length > 4) {
+      throw "INVALID ID";
+    }
+  }
+  catch (err) {
+    res.send(err); //printing error message to the screen
+  }
+  if (res.headersSent !== true) { //prevents multiple headers from being sent
+    res.send("Company: " + name);
+  }
 })
 
-
-app.get('/company/:id', (req,res) => {
+/*
+parameter get request
+*/
+app.get('/company/:id', (req, res) => { 
 
   let id = req.params.id
   let name = '';
-  for(i = 0; i < data.fakeData.length; i++) {  //iterates over the fakeData array looking for id match
-    if(id == data.fakeData[i].id) {
+  for (i = 0; i < data.fakeData.length; i++) {  //iterates over the fakeData array looking for id match
+    if (id == data.fakeData[i].id) {
       name = data.fakeData[i].name; // if there is a match sets name variable
       break;
     }
   }
-  if(name == undefined) { name = "Invalid ID";}
-  res.send("Company: " + name);
+  try { //catching invalid id errors
+    if (name == '' || id.length > 4) {
+      throw "INVALID ID";
+    }
+  }
+  catch (err) {
+    res.send(err); //printing error message to the screen
+  }
+  if (res.headersSent !== true) { //prevents multiple headers from being sent
+    res.send("Company: " + name);
+  }
 })
 
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Company app listening on port ${port}`);
 })
 

@@ -63,10 +63,7 @@ parameter GET request
 app.get('/company/:id', (req, res) => {
 
   let id = req.params.id; //assigning the id variable to value in the url
-  //let select = new Array();
   let select = req.query.select; //variable containing value representing instance variable to be returned from object
-  let name = '';
-
   let currCompany = undefined;
 
   for (i = 0; i < data.fakeData.length; i++) {  //iterates over the fakeData array looking for id match
@@ -75,17 +72,20 @@ app.get('/company/:id', (req, res) => {
       break;
     }
   }
+
+  let str = ""; //setting blank value for str
   try { //catching invalid id errors
     if (id == undefined) { throw "ERROR: PLEASE ENTER A FOUR DIGIT ID VALUE" }
     else if (isNaN(id)) { throw "ERROR: INVALID ID, MUST BE A NUMBER"; } //is id a number
     else if (id.length > 4 || id.length < 4) { throw "ERROR: INVALID ID LENGTH, MUST BE FOUR DIGITS"; } //is id too long or too short, must be four digits
     else if (id < 0) { throw "ERROR: ID LESS THAN ZERO"; } //is ID less than zero 
-    else if (currCompany.name == '') { throw "ERROR: ID NOT TIED TO ANY EXISTING COMPANY"; } //is there a company tied to the ID
+    else if (currCompany == undefined) { throw "ERROR: ID NOT TIED TO ANY EXISTING COMPANY"; } //is there a company tied to the ID
+    str = "Company: " + currCompany.name + "<br />";
   }
   catch (err) {
     res.send(err); //printing error message to the screen
   }
-  let str = "Company: " + currCompany.name + "<br />";
+  if (select != undefined) { //if there are values for selects continues into the body
     if (select != undefined && !(Array.isArray(select))) { //checks wheter select has multiple entries, if not prints out desired instance variable
       try {
         if (select.localeCompare("email") == 0) {
@@ -101,14 +101,16 @@ app.get('/company/:id', (req, res) => {
           str += " Location: " + currCompany.location + "<br />";
         }
         else if (select.localeCompare("all") == 0) {
-          str += "Email: " + currCompany.email + "<br />Owner: " + currCompany.owner + "<br />Phone Number: " + currCompany.phoneNumber + "<br />Location: " + currCompany.location;
+          str = "Company: " + currCompany.name + "<br />" + "Email: " + currCompany.email + "<br />Owner: " + currCompany.owner + "<br />Phone Number: " + currCompany.phoneNumber + "<br />Location: " + currCompany.location;
         }
         else { //throws an error if the select value is not supported
           throw "ERROR: INVALID SELECT VALUE \"" + select + "\"";
         }
       }
       catch (err) {
-        res.send(err);
+        if (res.headersSent !== true) { //prevents multiple headers from being sent
+          res.send(err); //sending error
+        }
       }
     }
     else if (select != undefined && Array.isArray(select)) { //if select is an array, loops over array printing out requested instance variables
@@ -127,7 +129,7 @@ app.get('/company/:id', (req, res) => {
             str += " Location: " + currCompany.location + "<br />";
           }
           else if (select[i].localeCompare("all") == 0) {
-            str += "Email: " + currCompany.email + "<br />Owner: " + currCompany.owner + "<br />Phone Number: " + currCompany.phoneNumber + "<br />Location: " + currCompany.location;
+            str = "Company: " + currCompany.name + "<br />" + "Email: " + currCompany.email + "<br />Owner: " + currCompany.owner + "<br />Phone Number: " + currCompany.phoneNumber + "<br />Location: " + currCompany.location;
           }
           else { //throws an error if one of the select values is not supported 
             throw "ERROR: ONE OR MORE INVALID SELECT VALUE(s) \"" + select + "\"";
@@ -135,12 +137,14 @@ app.get('/company/:id', (req, res) => {
         }
       }
       catch (err) {
-        res.send(err);
+        if (res.headersSent !== true) { //prevents multiple headers from being sent
+          res.send(err); //sending error
+        }
       }
     }
+  }
   if (res.headersSent !== true) { //prevents multiple headers from being sent
-    //printing company data onto the webpage
-    res.send(str);
+    res.send(str);//printing company data onto the webpage
   }
 })
 

@@ -18,7 +18,11 @@ const comp7 = new company('0007','Warner Brothers','WarnerBros@yahoo.com','David
 const comp8 = new company('0008','Cotopaxi','cotopaxi@gmail.com','Davis Smith','(800)111-1118','Utah');
 const comp9 = new company('0009','Lulu Lemon','Lulu@gmail.com','Michael Aragon','(800)111-1119','California');
 const comp10 = new company('0010','Subaru','Subaru@gmail.com','Tomomi Nakamura','(800)111-1121','Japan');
-const fakeData = [comp1,comp2,comp3,comp4,comp5,comp6,comp7,comp8,comp9,comp10];
+const comp11 = new company('0011','Twitter','Twitter@twitter.com','Elon Musk','(800)111-1127','California');
+const comp12 = new company('0012','Facebook','facebook@facebook.com','Mark Zuckerburg','(800)111-1318','California');
+const comp13 = new company('0013','Chaco','chaco@gmail.com','Mark Paigen','(800)131-1119','Colorado');
+const comp14 = new company('0014','Ford','Ford@gmail.com','Henry Ford','(800)118-1121','Michigan');
+const fakeData = [comp1,comp2,comp3,comp4,comp5,comp6,comp7,comp8,comp9,comp10,comp11,comp12,comp13,comp14];
 
 module.exports = {fakeData}; //preparing data for being exported/imported
 

@@ -7,7 +7,6 @@
     this.location = location;
 }
 
-
 const comp1 = new company('0001','Acme','acme@yahoo.com','Yosemite Sam','(800)111-1111','California');
 const comp2 = new company('0002','Nike','nike@gmail.com','Phil Knight','(800)111-1112','Oregon');
 const comp3 = new company('0003','HBO','HBO@msn.com','Richard Plepler','(800)111-1113','California');
@@ -24,6 +23,6 @@ const comp13 = new company('0013','Chaco','chaco@gmail.com','Mark Paigen','(800)
 const comp14 = new company('0014','Ford','Ford@gmail.com','Henry Ford','(800)118-1121','Michigan');
 const fakeData = [comp1,comp2,comp3,comp4,comp5,comp6,comp7,comp8,comp9,comp10,comp11,comp12,comp13,comp14];
 
-module.exports = {fakeData}; //preparing data for being exported/imported
+module.exports = {fakeData,}; //preparing data for being exported/imported
 
 

@@ -136,12 +136,12 @@ router.post('/', (req, res) => {
         res.status(400).send("There is already a company with the ID: " + comp.id);
     }
     else { //if no errors are present, adds new company object to fakeData
-        data.fakeData.push(comp);
+        data.fakeData.push(comp); // adding new company to the fakeData array
         res.status(201).send("Object Created");
     }
 });
 
-router.delete('/:id', (req, res) => { //needs work 
+router.delete('/:id', (req, res) => {
     let id = req.params.id;
     const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match 
         return (company.id === id);
@@ -150,8 +150,35 @@ router.delete('/:id', (req, res) => { //needs work
         res.status(400).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
     }
     else {
-        currCompany.id = undefined;
-        res.send("The company with the ID: " + id + " has been deleted");
+        for (let i = 0; i < data.fakeData.length; i++) {
+            if (currCompany.id == data.fakeData[i].id) {
+                data.fakeData.splice(i, 1);
+                break;
+            }
+        }
+        res.status(201).send("The company with the ID: " + id + " has been deleted");
+    }
+});
+
+router.put('/', (req, res) => {
+    const currComp = req.body; // creating an instance of a company by what is defined in the body
+    let exists = false; //if a company has the id found in the body, will be changed to true
+    if (currComp == undefined) {
+        res.status(400).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
+    }
+    else if (currComp.name == undefined || currComp.id == undefined || currComp.email == undefined || currComp.owner == undefined || currComp.phoneNumber == undefined || currComp.location == undefined) {
+        res.status(400).send("Incorrect syntax for the body"); //makes sure all the values are initialized and valid 
+    }
+    for (let i = 0; i < data.fakeData.length; i++) { //iterating through the data list to find a id match 
+        if (currComp.id == data.fakeData[i].id) {
+            exists = true;
+            data.fakeData[i] = currComp; //assigning new values to the old company object
+            res.status(201).send("Replaced old " + currComp.id + " with new value(s)");
+            break;
+        }
+    }
+    if (exists == false) { //if there is no id match an and error is sent
+        res.status(201).send("NO COMPANY WITH THAT ID ");
     }
 });
 

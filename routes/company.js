@@ -1,111 +1,112 @@
-const express = require('express')
-const router = express.Router()
-const data = require('../Data/fake-data') //importing data from fake-data.js
+/**
+ * Route for /company URLs, handles different HTML functions
+ * @author Jake Harmon
+ */
 
+const express = require('express');
+const router = express.Router();
+const data = require('../Data/fake-data'); //importing data from fake-data.js
 
+/**
+ * *GET Allows client to get the data of specific companies 
+ */
 router.get('/:id', (req, res) => {
 
     let id = req.params.id; //assigning the id variable to value in the url
     let select = req.query.select; //variable containing value representing instance variable to be returned from object
+    let tempObj = {}; //blank object to be filled with data and returned 
 
     const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match 
         return (company.id === id);
     });
 
-    let str = ""; //setting blank value for str
-    let retObj = undefined; //object that will be res.JSON
-
-    if (id == undefined) { res.status(401).send({error: "ENTER A FOUR DIGIT ID VALUE"}); }
-        else if (isNaN(id)) { res.status(401).send({error: "INVALID ID, MUST BE A NUMBER"}); } //is id a number
-        else if (id.length > 4 || id.length < 4) { res.status(401).send({error: "INVALID ID LENGTH, MUST BE FOUR DIGITS"}); } //is id too long or too short, must be four digits
-        else if (id < 0) { res.status(401).send({error: "ID LESS THAN ZERO"}); } //is ID less than zero 
-        else if (currCompany == undefined) { res.status(401).send({error: "ID NOT TIED TO ANY EXISTING COMPANY"}); } //is there a company tied to the ID
-        retObj = currCompany;
-    if (select != undefined) { //if there are values for selects continues into the body
-        str = ""; //resetting str so you can filter instance variables
-        if (select != undefined && !(Array.isArray(select))) { //if there are multiple selects, continues into the body
-                if (select.localeCompare("email") == 0) {
-                    retObj = currCompany.email;
-                }
-                else if (select.localeCompare("name") == 0) {
-                    retObj = currCompany.name;
-                }
-                else if (select.localeCompare("id") == 0) {
-                    retObj = currCompany.id;
-                }
-                else if (select.localeCompare("owner") == 0) {
-                    retObj = currCompany.owner;
-                }
-                else if (select.localeCompare("phoneNumber") == 0) {
-                    retObj = currCompany.phoneNumber;
-                }
-                else if (select.localeCompare("location") == 0) {
-                    retObj = currCompany.location;
-                }
-                else if (select.localeCompare("all") == 0) {
-                    retObj = currCompany;
-                }
-                else { //throws an error if the select value is not supported
-                    res.status(401).send({error: "ERROR: INVALID SELECT VALUE \"" + select + "\""});
-                }
+    if (id == undefined) { //no id is entered 
+        res.status(401).send({ error: "ENTER A FOUR DIGIT ID VALUE" });
+    }
+    else if (isNaN(id)) { //is id is not a number
+        res.status(401).send({ error: "INVALID ID, MUST BE A NUMBER" });
+    }
+    else if (id.length > 4 || id.length < 4) {//is id too long or too short, must be four digits
+        res.status(401).send({ error: "INVALID ID LENGTH, MUST BE FOUR DIGITS" });
+    }
+    else if (id < 0) { //is ID less than zero 
+        res.status(401).send({ error: "ID LESS THAN ZERO" });
+    }
+    else if (currCompany == undefined) { //no company tied to the ID
+        res.status(401).send({ error: "ID NOT TIED TO ANY EXISTING COMPANY" });
+    }
+    tempObj = currCompany; //assigning currCompany to return object as it will be returned if none of the if statements are triggered
+    if (select != undefined && !(Array.isArray(select))) { //if there are values for selects continues into the body
+        //if there are multiple selects, continues into the body and returns whatever instance variable is requested 
+        tempObj = {};
+        if (select.localeCompare("email") == 0) {
+            tempObj.email = currCompany.email;
+        }
+        else if (select.localeCompare("name") == 0) {
+            tempObj.name = currCompany.name;
+        }
+        else if (select.localeCompare("id") == 0) {
+            tempObj.id = currCompany.id;
+        }
+        else if (select.localeCompare("owner") == 0) {
+            tempObj.owner = currCompany.owner;
+        }
+        else if (select.localeCompare("phoneNumber") == 0) {
+            tempObj.phoneNumber = currCompany.phoneNumber;
+        }
+        else if (select.localeCompare("location") == 0) {
+            tempObj.location = currCompany.location;
+        }
+        else if (select.localeCompare("all") == 0) {
+            tempObj = currCompany;
+        }
+        else { //throws an error if the select value is not supported
+            res.status(400).send({ error: "ERROR: INVALID SELECT VALUE \"" + select + "\"" });
+        }
+    }
+    else if (select != undefined && Array.isArray(select)) { //if select is an array/multiple variables are selected, iterates array concatenating requested instance variables
+        tempObj = {};
+        for (let i = 0; i < select.length; i++) { //iterates through array and adds new fields to tempObj
+            if (select[i].localeCompare("email") == 0) {
+                tempObj.email = currCompany.email;
+            }
+            else if (select[i].localeCompare("name") == 0) {
+                tempObj.name = currCompany.name;
+            }
+            else if (select[i].localeCompare("id") == 0) {
+                tempObj.id = currCompany.id;
+            }
+            else if (select[i].localeCompare("owner") == 0) {
+                tempObj.owner = currCompany.owner;
+            }
+            else if (select[i].localeCompare("phoneNumber") == 0) {
+                tempObj.phoneNumber = currCompany.phoneNumber;
+            }
+            else if (select[i].localeCompare("location") == 0) {
+                tempObj.location = currCompany.location;
+            }
+            else if (select[i].localeCompare("all") == 0) {
+                tempObj = currCompany;
+                break; //no point in continuing to iterate over array
+            }
+            else { //throws an error if one of the select values is not supported 
+                res.status(400).send({ error: "ERROR: ONE OR MORE INVALID SELECT VALUE(s) \"" + select + "\"" });
             }
         }
-        else if (select != undefined && Array.isArray(select)) { //if select is an array, loops over array printing out requested instance variables
-                str += "{";
-                for (let i = 0; i < select.length; i++) {
-                    if (select[i].localeCompare("email") == 0) {
-                        str += "\"email\":\"" + currCompany.email + "\"";
-                    }
-                    else if (select[i].localeCompare("name") == 0) {
-                        str += "\"name\":\"" + currCompany.name + "\"";
-                    }
-                    else if (select[i].localeCompare("id") == 0) {
-                        str += "\"id\":\"" + currCompany.id + "\"";
-                    }
-                    else if (select[i].localeCompare("owner") == 0) {
-                        str += "\"owner\":\"" + currCompany.owner + "\"";
-                    }
-                    else if (select[i].localeCompare("phoneNumber") == 0) {
-                        str += "\"phoneNumber\":\"" + currCompany.phoneNumber + "\"";
-                    }
-                    else if (select[i].localeCompare("location") == 0) {
-                        str += "\"location\":\"" + currCompany.location + "\"";
-                    }
-                    else if (select[i].localeCompare("all") == 0) {
-                        str = JSON.stringify(currCompany);
-                    }
-                    else { //throws an error if one of the select values is not supported 
-                        res.send({error: "ERROR: ONE OR MORE INVALID SELECT VALUE(s) \"" + select + "\""});
-                    }
-                    if (select.length - i > 1 && select[i].localeCompare("all") != 0) {
-                        str += ",";
-                    }
-                    if (select.length - i == 1 && select[i].localeCompare("all") != 0) {
-                        str += "}";
-                    }
-                }
-            
-            // catch (err) {
-            //     if (res.headersSent !== true) { //prevents multiple headers from being sent
-            //         res.send(err); //sending error
-            //     }
-            // }
-        }
-    
+    }
     if (res.headersSent !== true && !(select != undefined && Array.isArray(select))) { //prevents multiple headers from being sent
-        res.json(retObj);//printing company data onto the webpage in JSON FORMAT
+        res.json(tempObj);//printing company data onto the webpage in JSON FORMAT
     }
     else if (res.headersSent !== true && select != undefined && Array.isArray(select)) {//if there are multiple queries goes into this body
-        res.json(str);
+        res.json(tempObj);
     }
-})
+});
 
 /**
- **Allows the client to post a new company object into the fakeData array 
+ **POST Allows the client to post a new company object into the fakeData array 
  */
 router.post('/', (req, res) => {
     const comp = req.body; //storing the body data in a new object 
-    console.log(req.body);
     let isDuplicate = false;
     if (comp.name == undefined || comp.id == undefined || comp.email == undefined || comp.owner == undefined || comp.phoneNumber == undefined || comp.location == undefined) {
         res.status(400).send("Incorrect syntax for the body"); //makes sure all the values are initialized and valid 
@@ -121,25 +122,25 @@ router.post('/', (req, res) => {
             }
         }
     }
-    if (isDuplicate) { 
+    if (isDuplicate) {
         res.status(400).send("There is already a company with the ID: " + comp.id);
     }
     else { //if no errors are present, adds new company object to fakeData
         data.fakeData.push(comp); // adding new company to the fakeData array
-        res.status(201).send("Object Created");
+        res.status(201).send("New Company object has been created with an id of: " + comp.id);
     }
 });
 
 /** 
-** Allows the client to delete a company object that is in the fakeData array 
+** DELETE Allows the client to delete a company object that is in the fakeData array 
 */
 router.delete('/:id', (req, res) => {
     let id = req.params.id;
-    const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match 
+    const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
         return (company.id === id);
     });
     if (currCompany == undefined) {
-        res.status(400).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
+        res.status(404).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
     }
     else {
         for (let i = 0; i < data.fakeData.length; i++) {
@@ -153,13 +154,13 @@ router.delete('/:id', (req, res) => {
 });
 
 /** 
-** Allows the client to change instance variables of a company currently in the fakeData array
+** PUT Allows the client to change instance variables of a company currently in the fakeData array
 */
 router.put('/', (req, res) => {
     const currComp = req.body; // creating an instance of a company by what is defined in the body
     let exists = false; //if a company has the id found in the body, will be changed to true
     if (currComp == undefined) {
-        res.status(400).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
+        res.status(404).send({ error: "THERE IS NO COMPANY WITH THIS ID" });
     }
     else if (currComp.name == undefined || currComp.id == undefined || currComp.email == undefined || currComp.owner == undefined || currComp.phoneNumber == undefined || currComp.location == undefined) {
         res.status(400).send("Incorrect syntax for the body"); //makes sure all the values are initialized and valid 
@@ -168,12 +169,12 @@ router.put('/', (req, res) => {
         if (currComp.id == data.fakeData[i].id) {
             exists = true;
             data.fakeData[i] = currComp; //assigning new values to the old company object
-            res.status(201).send("Replaced old " + currComp.id + " with new value(s)");
+            res.status(200).send("Replaced old " + currComp.id + " with new value(s)");
             break;
         }
     }
     if (exists == false) { //if there is no id match an and error is sent
-        res.status(201).send("NO COMPANY WITH THAT ID ");
+        res.status(404).send({ error: "NO COMPANY WITH THAT ID" });
     }
 });
 

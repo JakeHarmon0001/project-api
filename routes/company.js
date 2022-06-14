@@ -12,25 +12,18 @@ router.get('/:id', (req, res) => {
         return (company.id === id);
     });
 
-    //let str = ""; //setting blank value for str
+    let str = ""; //setting blank value for str
     let retObj = undefined; //object that will be res.JSON
-    try { //catching invalid id errors
-        if (id == undefined) { throw "ERROR: PLEASE ENTER A FOUR DIGIT ID VALUE" }
-        else if (isNaN(id)) { throw "ERROR: INVALID ID, MUST BE A NUMBER"; } //is id a number
-        else if (id.length > 4 || id.length < 4) { throw "ERROR: INVALID ID LENGTH, MUST BE FOUR DIGITS"; } //is id too long or too short, must be four digits
-        else if (id < 0) { throw "ERROR: ID LESS THAN ZERO"; } //is ID less than zero 
-        else if (currCompany == undefined) { throw "ERROR: ID NOT TIED TO ANY EXISTING COMPANY"; } //is there a company tied to the ID
-        //str = JSON.stringify(currCompany);
+
+    if (id == undefined) { res.status(401).send({error: "ENTER A FOUR DIGIT ID VALUE"}); }
+        else if (isNaN(id)) { res.status(401).send({error: "INVALID ID, MUST BE A NUMBER"}); } //is id a number
+        else if (id.length > 4 || id.length < 4) { res.status(401).send({error: "INVALID ID LENGTH, MUST BE FOUR DIGITS"}); } //is id too long or too short, must be four digits
+        else if (id < 0) { res.status(401).send({error: "ID LESS THAN ZERO"}); } //is ID less than zero 
+        else if (currCompany == undefined) { res.status(401).send({error: "ID NOT TIED TO ANY EXISTING COMPANY"}); } //is there a company tied to the ID
         retObj = currCompany;
-    }
-    catch (err) {
-        res.status(400);//bad request error status 
-        res.send(err); //printing error message to the screen
-    }
     if (select != undefined) { //if there are values for selects continues into the body
         str = ""; //resetting str so you can filter instance variables
         if (select != undefined && !(Array.isArray(select))) { //if there are multiple selects, continues into the body
-            try {
                 if (select.localeCompare("email") == 0) {
                     retObj = currCompany.email;
                 }
@@ -53,18 +46,11 @@ router.get('/:id', (req, res) => {
                     retObj = currCompany;
                 }
                 else { //throws an error if the select value is not supported
-                    throw "ERROR: INVALID SELECT VALUE \"" + select + "\"";
-                }
-            }
-            catch (err) {
-                if (res.headersSent !== true) { //prevents multiple headers from being sent
-                    res.status(400);//bad request error status
-                    res.send(err); //sending error
+                    res.status(401).send({error: "ERROR: INVALID SELECT VALUE \"" + select + "\""});
                 }
             }
         }
         else if (select != undefined && Array.isArray(select)) { //if select is an array, loops over array printing out requested instance variables
-            try {
                 str += "{";
                 for (let i = 0; i < select.length; i++) {
                     if (select[i].localeCompare("email") == 0) {
@@ -89,7 +75,7 @@ router.get('/:id', (req, res) => {
                         str = JSON.stringify(currCompany);
                     }
                     else { //throws an error if one of the select values is not supported 
-                        throw "ERROR: ONE OR MORE INVALID SELECT VALUE(s) \"" + select + "\"";
+                        res.send({error: "ERROR: ONE OR MORE INVALID SELECT VALUE(s) \"" + select + "\""});
                     }
                     if (select.length - i > 1 && select[i].localeCompare("all") != 0) {
                         str += ",";
@@ -98,14 +84,14 @@ router.get('/:id', (req, res) => {
                         str += "}";
                     }
                 }
-            }
-            catch (err) {
-                if (res.headersSent !== true) { //prevents multiple headers from being sent
-                    res.send(err); //sending error
-                }
-            }
+            
+            // catch (err) {
+            //     if (res.headersSent !== true) { //prevents multiple headers from being sent
+            //         res.send(err); //sending error
+            //     }
+            // }
         }
-    }
+    
     if (res.headersSent !== true && !(select != undefined && Array.isArray(select))) { //prevents multiple headers from being sent
         res.json(retObj);//printing company data onto the webpage in JSON FORMAT
     }
@@ -114,6 +100,9 @@ router.get('/:id', (req, res) => {
     }
 })
 
+/**
+ **Allows the client to post a new company object into the fakeData array 
+ */
 router.post('/', (req, res) => {
     const comp = req.body; //storing the body data in a new object 
     console.log(req.body);
@@ -132,7 +121,7 @@ router.post('/', (req, res) => {
             }
         }
     }
-    if (isDuplicate) {
+    if (isDuplicate) { 
         res.status(400).send("There is already a company with the ID: " + comp.id);
     }
     else { //if no errors are present, adds new company object to fakeData
@@ -141,6 +130,9 @@ router.post('/', (req, res) => {
     }
 });
 
+/** 
+** Allows the client to delete a company object that is in the fakeData array 
+*/
 router.delete('/:id', (req, res) => {
     let id = req.params.id;
     const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match 
@@ -160,6 +152,9 @@ router.delete('/:id', (req, res) => {
     }
 });
 
+/** 
+** Allows the client to change instance variables of a company currently in the fakeData array
+*/
 router.put('/', (req, res) => {
     const currComp = req.body; // creating an instance of a company by what is defined in the body
     let exists = false; //if a company has the id found in the body, will be changed to true

@@ -11,12 +11,16 @@ const data = require('./Data/fake-data'); //importing data from fake-data.js
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
-})
+});
+
+app.get('/companies', (req, res) => { //returns all companies in fakeData
+  res.status(200).json(data.fakeData);
+});
 
 const companyRouter = require('./routes/company'); 
 app.use('/company', companyRouter); //using the company route
 
 app.listen(port, () => {
-  console.log(`Company app listening on port ${port}`);
+  console.log(`app.js listening on port ${port}`);
 });
 

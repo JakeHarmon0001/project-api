@@ -2,7 +2,6 @@
  * Route for /company URLs, handles different HTML functions
  * @author Jake Harmon
  */
-
 const express = require('express');
 const router = express.Router();
 const data = require('../Data/fake-data'); //importing data from fake-data.js
@@ -19,23 +18,25 @@ router.get('/:id', (req, res) => {
     const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match 
         return (company.id === id);
     });
-
+    //checking for initial errors
     if (id == undefined) { //no id is entered 
-        res.status(401).send({ error: "ENTER A FOUR DIGIT ID VALUE" });
+        res.status(400).send({ error: "ENTER A FOUR DIGIT ID VALUE" });
     }
     else if (isNaN(id)) { //is id is not a number
-        res.status(401).send({ error: "INVALID ID, MUST BE A NUMBER" });
+        res.status(400).send({ error: "INVALID ID, MUST BE A NUMBER" });
     }
     else if (id.length > 4 || id.length < 4) {//is id too long or too short, must be four digits
-        res.status(401).send({ error: "INVALID ID LENGTH, MUST BE FOUR DIGITS" });
+        res.status(400).send({ error: "INVALID ID LENGTH, MUST BE FOUR DIGITS" });
     }
     else if (id < 0) { //is ID less than zero 
-        res.status(401).send({ error: "ID LESS THAN ZERO" });
+        res.status(400).send({ error: "ID LESS THAN ZERO" });
     }
     else if (currCompany == undefined) { //no company tied to the ID
-        res.status(401).send({ error: "ID NOT TIED TO ANY EXISTING COMPANY" });
+        res.status(404).send({ error: "ID NOT TIED TO ANY EXISTING COMPANY" });
     }
+
     tempObj = currCompany; //assigning currCompany to return object as it will be returned if none of the if statements are triggered
+    //if statements checking if select has value(s)
     if (select != undefined && !(Array.isArray(select))) { //if there are values for selects continues into the body
         //if there are multiple selects, continues into the body and returns whatever instance variable is requested 
         tempObj = {};
@@ -94,11 +95,9 @@ router.get('/:id', (req, res) => {
             }
         }
     }
-    if (res.headersSent !== true && !(select != undefined && Array.isArray(select))) { //prevents multiple headers from being sent
-        res.json(tempObj);//printing company data onto the webpage in JSON FORMAT
-    }
-    else if (res.headersSent !== true && select != undefined && Array.isArray(select)) {//if there are multiple queries goes into this body
-        res.json(tempObj);
+
+    if (res.headersSent !== true) { //making sure no other headers have been sent
+        res.status(200).json(tempObj);
     }
 });
 

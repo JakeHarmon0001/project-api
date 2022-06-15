@@ -13,12 +13,9 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.get('/companies', (req, res) => { //returns all companies in fakeData
-  res.status(200).json(data.fakeData);
-});
 
-const companyRouter = require('./routes/company'); 
-app.use('/company', companyRouter); //using the company route
+const companyRouter = require('./routes/companies'); 
+app.use('/companies', companyRouter); //using the company route
 
 app.listen(port, () => {
   console.log(`app.js listening on port ${port}`);

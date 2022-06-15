@@ -7,6 +7,10 @@ const router = express.Router();
 const data = require('../Data/fake-data'); //importing data from fake-data.js
 const utility = require("/home/ubuntu/project-api/Utilities.js");
 
+const {  errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
+
+const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError } = require('/home/ubuntu/project-api/errors');
+
 router.get('', (req, res) => { //returns all companies in fakeData
     res.status(200).json(data.fakeData);
 });
@@ -25,11 +29,15 @@ router.get('/:id', (req, res) => {
 
     //validating the id and currComp
     if (!(utility.isValidId(id))) {
-        res.status(400).send({ error: "ID is invalid, must be a 4 digit number" });
+        // if(id instanceof String) {
+        //     throw new NaNError(id);
+        //     return;
+        // }
+        throw new LengthError(id);
         return;
     }
     else if (currCompany == undefined) { //no company tied to the ID
-        res.status(404).send({ error: "ID NOT TIED TO ANY EXISTING COMPANY" });
+        throw new NonExistingError(id);
         return;
     }
 
@@ -42,7 +50,8 @@ router.get('/:id', (req, res) => {
             utility.getCompanyDataStr(currCompany,select,tempComp);
         }
         else {
-            res.status(401).send("Invalid select query")
+            //res.status(401).send("Invalid select query")
+            throw new InvalidSelectError(select);
         }
     }//if select is an array/multiple variables are selected, iterates array concatenating requested instance variables
     else if (select != undefined && Array.isArray(select)) { 
@@ -51,7 +60,8 @@ router.get('/:id', (req, res) => {
             utility.getCompanyData(currCompany,select,tempComp);
         }
         else {
-            res.status(401).send("One or multiple invalid select query")
+           // res.status(401).send("One or multiple invalid select query")
+            throw new InvalidSelectError(select);
         }
     }
     if (res.headersSent !== true) { //making sure no other headers have been sent
@@ -84,7 +94,7 @@ router.post('/', (req, res) => {
 });
 
 /** 
-*  * DELETE Allows the client to delete a company object that is in the fakeData array 
+* * DELETE Allows the client to delete a company object that is in the fakeData array 
 */
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
@@ -92,7 +102,7 @@ router.delete('/:id', (req, res) => {
         return (company.id === id);
     });
     if (currCompany == undefined) {
-        res.status(404).send("ERROR: THERE IS NO COMPANY WITH THIS ID");
+        throw new NonExistingError(id);
     }
     else {
         utility.removeFromArray(currCompany.id, data.fakeData);
@@ -110,11 +120,11 @@ router.put('/', (req, res) => {
         res.status(404).send({ error: "THERE IS NO COMPANY WITH THIS ID" });
     }
     else if (!(utility.isCompanyValid(currComp))) {
-        res.status(400).send("Incorrect syntax for the body"); //makes sure all the values are initialized and valid 
+        throw new InvalidCompanyError(); //makes sure all the values are initialized and valid 
     }
     exists = utility.isIdDuplicate(currComp.id); // checking if there is a duplicate 
     if (exists == false) { //if there is no id match an and error is sent
-        res.status(404).send({ error: "NO COMPANY WITH THAT ID" });
+        throw new NonExistingError(currComp.id);
     }
     else if (exists) {
         utility.replaceCompany(currComp);
@@ -122,4 +132,7 @@ router.put('/', (req, res) => {
     }
 });
 
+router.use(errorLogger);
+router.use(errorResponder);
+router.use(invalidPathHandler);
 module.exports = router;

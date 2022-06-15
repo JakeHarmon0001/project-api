@@ -1,16 +1,24 @@
+/**
+* This file contains utility code to be used on different routes for the sake of code readability
+* @author Jake Harmon
+*/
+
 const data = require('./Data/fake-data');
 const express = require('express');
+
+
 /**
- * Tests whether the given id is valid 
+ * Tests whether the given id is valid
+ * ! need to find a way to detect if it is a Number or String, instanceof and typeof both arent working
  * @param {*} id 
- * @returns 
+ * @returns true if id is valid 
  */
 function isValidId(id) {
     let isValid = true;
     if (id == undefined) {
         return false;
     }
-    else if (isNaN(id)) {
+    else if (typeof id === String) {
         return false;
     }
     else if (id.length < 4 || id.length > 4) {
@@ -24,7 +32,7 @@ function isValidId(id) {
 /**
  * Checks fakeData for a duplicate id 
  * @param {*} id 
- * @returns 
+ * @returns true if there if the id exists already 
  */
 function isIdDuplicate(id) {
     let isDuplicate = false;
@@ -66,7 +74,7 @@ function replaceCompany(company) {
 /**
  * Checks to see if the fields of company are filled 
  * @param {} company 
- * @returns 
+ * @returns true if the company is valid/has all of its instance variables filled/not undefined
  */
 function isCompanyValid(company) {
 
@@ -79,12 +87,10 @@ function isCompanyValid(company) {
  * returns the desired company data listed in array from company in a new object
  * @param {*} company 
  * @param {*} array 
- * @returns 
  */
 function getCompanyData(company, array, jsonObj) {
     //compares array elements to valid select values and assings jsonObj.select the correct values from company
     for (let i = 0; i < array.length; i++) {
-
         if (array[i].localeCompare("id") == 0) {
             jsonObj.id = company.id;
         }
@@ -105,7 +111,6 @@ function getCompanyData(company, array, jsonObj) {
         }
         else if (array[i].localeCompare("all") == 0) {
             jsonObj = company;
-
         }
     }
 }
@@ -114,44 +119,35 @@ function getCompanyData(company, array, jsonObj) {
  * Does the same thing as getCompanyData but with a string as input
  * @param {*} company 
  * @param {*} str 
- * @returns 
  */
 function getCompanyDataStr(company, str, jsonObj) {
     //compares str to valid select values and assings jsonObj.select the correct value from company
     if (str.localeCompare("id") == 0) {
         jsonObj.id = company.id;
-        //return tempJson;
     }
     else if (str.localeCompare("name") == 0) {
         jsonObj.name = company.name;
-        // return tempJson;
     }
     else if (str.localeCompare("email") == 0) {
         jsonObj.email = company.email;
-        //return tempJson;
     }
     else if (str.localeCompare("owner") == 0) {
         jsonObj.owner = company.owner;
-        //return tempJson;
     }
     else if (str.localeCompare("phoneNumber") == 0) {
         jsonObj.phoneNumber = company.phoneNumber;
-        //return tempJson;
     }
     else if (str.localeCompare("location") == 0) {
         jsonObj.location = company.location;
-        //return tempJson;
     }
     else if (str.localeCompare("all") == 0) {
         jsonObj = company;
-        //return tempJson;
     }
-
 }
 /**
  * Checks whether the select array contains valid values
  * @param {} array 
- * @returns 
+ * @returns true if array contains valid select values
  */
 function isValidSelectArray(array) {
     for (let i = 0; i < array.length; i++) {
@@ -168,7 +164,7 @@ function isValidSelectArray(array) {
 /**
  * Checks whether the select str contains a valid value
  * @param {*} str 
- * @returns 
+ * @returns true if str contains a valid select value 
  */
 function isValidSelectStr(str) {
 
@@ -180,8 +176,5 @@ function isValidSelectStr(str) {
     }
     return true;
 }
-
-
-
 
 module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr };

@@ -63,7 +63,6 @@ function removeFromArray(id, array) {
  * @param {} company 
  */
 function replaceCompany(company) {
-
     for (let i = 0; i < data.fakeData.length; i++) { //iterating through the data list to find a id match 
         if (company.id == data.fakeData[i].id) {
             data.fakeData[i] = company; //assigning new values to the old company object
@@ -77,7 +76,6 @@ function replaceCompany(company) {
  * @returns true if the company is valid/has all of its instance variables filled/not undefined
  */
 function isCompanyValid(company) {
-
     if (company.name == undefined || company.id == undefined || company.email == undefined || company.owner == undefined || company.phoneNumber == undefined || company.location == undefined) {
         return false;
     }
@@ -150,14 +148,15 @@ function getCompanyDataStr(company, str, jsonObj) {
  * @returns true if array contains valid select values
  */
 function isValidSelectArray(array) {
+    console.log("IN ISVALID SELCET ARR");
     for (let i = 0; i < array.length; i++) {
         //checks to see if the values stored in selects are valid data values
-        if (!(array[i].localeCompare("id")) || !(array[i].localeCompare("name"))
-            || !(array[i].localeCompare("email")) || !(array[i].localeCompare("owner"))
-            || !(array[i].localeCompare("phoneNumber")) || !(array[i].localeCompare("location"))
-            || !(array[i].localeCompare("all"))) {
-            return false;
-        }
+        if (!(array[i].localeCompare("id") ==0) && !(array[i].localeCompare("name")==0)
+        && !(array[i].localeCompare("email")==0) && !(array[i].localeCompare("owner")==0)
+        && !(array[i].localeCompare("phoneNumber")==0) && !(array[i].localeCompare("location")==0)
+        && !(array[i].localeCompare("all")==0)) {
+        return false;
+    }
     }
     return true;
 }
@@ -168,13 +167,13 @@ function isValidSelectArray(array) {
  */
 function isValidSelectStr(str) {
 
-    if (!(str.localeCompare("id")) || !(str.localeCompare("name"))
-        || !(str.localeCompare("email")) || !(str.localeCompare("owner"))
-        || !(str.localeCompare("phoneNumber")) || !(str.localeCompare("location"))
-        || !(str.localeCompare("all"))) {
+    if (!(str.localeCompare("id") == 0) && !(str.localeCompare("name") == 0)
+        && !(str.localeCompare("email") == 0) && !(str.localeCompare("owner") == 0)
+        && !(str.localeCompare("phoneNumber") == 0) && !(str.localeCompare("location") == 0)
+        && !(str.localeCompare("all")) == 0) {
         return false;
     }
-    return true;
+    return true; 
 }
 
 module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr };

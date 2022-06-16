@@ -7,9 +7,8 @@ const router = express.Router();
 const data = require('../Data/fake-data'); //importing data from fake-data.js
 const utility = require("/home/ubuntu/project-api/Utilities.js");
 
-const {  errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
-
-const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError } = require('/home/ubuntu/project-api/errors');
+const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
+const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError } = require('/home/ubuntu/project-api/errors');
 
 router.get('', (req, res) => { //returns all companies in fakeData
     res.status(200).json(data.fakeData);
@@ -17,7 +16,7 @@ router.get('', (req, res) => { //returns all companies in fakeData
 /**
  *  *GET Allows client to get the data of specific companies 
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', idValidate, queryValidate, (req, res) => {
 
     const id = req.params.id; //assigning the id variable to value in the url
     const select = req.query.select; //variable containing value representing instance variable to be returned from object
@@ -27,43 +26,19 @@ router.get('/:id', (req, res) => {
         return (company.id === id);
     });
 
-    //validating the id and currComp
-    if (!(utility.isValidId(id))) {
-        // if(id instanceof String) {
-        //     throw new NaNError(id);
-        //     return;
-        // }
-        throw new LengthError(id);
-        return;
-    }
-    else if (currCompany == undefined) { //no company tied to the ID
-        throw new NonExistingError(id);
-        return;
-    }
-
     tempComp = currCompany; //assigning currCompany to return object as it will be returned if none of the if statements are triggered
+
     //if statements checking if select has value(s)
     if (select != undefined && !(Array.isArray(select))) { //if there are values for selects continues into the body
         //if there arent multiple selects, continues into the body and returns whatever instance variable is requested 
         tempComp = {};
-        if (!(utility.isValidSelectStr(select))) {
-            utility.getCompanyDataStr(currCompany,select,tempComp);
-        }
-        else {
-            //res.status(401).send("Invalid select query")
-            throw new InvalidSelectError(select);
-        }
+        utility.getCompanyDataStr(currCompany, select, tempComp);
     }//if select is an array/multiple variables are selected, iterates array concatenating requested instance variables
-    else if (select != undefined && Array.isArray(select)) { 
+    else if (select != undefined && Array.isArray(select)) {
         tempComp = {};
-        if (!(utility.isValidSelectArray(select))) {
-            utility.getCompanyData(currCompany,select,tempComp);
-        }
-        else {
-           // res.status(401).send("One or multiple invalid select query")
-            throw new InvalidSelectError(select);
-        }
+        utility.getCompanyData(currCompany, select, tempComp);
     }
+
     if (res.headersSent !== true) { //making sure no other headers have been sent
         res.status(200).json(tempComp);
     }
@@ -96,7 +71,7 @@ router.post('/', (req, res) => {
 /** 
 * * DELETE Allows the client to delete a company object that is in the fakeData array 
 */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', idValidate, (req, res) => {
     const id = req.params.id;
     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
         return (company.id === id);
@@ -132,7 +107,50 @@ router.put('/', (req, res) => {
     }
 });
 
+
+/**
+ * Function used to test if an id is valid
+ * @param {} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function idValidate(req, res, next) {
+
+    if (!(utility.isValidId(req.params.id))) {
+        next(new InvalidIdError(req.params.id));
+    }
+    else {
+        next();
+    }
+
+}
+/**
+ * Function that tests whether a query is valid
+ * @param {} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function queryValidate(req, res, next) {
+
+    if (req.query.select === undefined) {
+        next();
+    }
+    else {
+        if (Array.isArray(req.query.select) && !(utility.isValidSelectArray(req.query.select))) {
+            next(new InvalidSelectError(req.query.select));
+            console.log("invalid array select test")
+        }
+        else if (typeof req.query.select !== Array && !(utility.isValidSelectStr(req.query.select))) {
+            next(new InvalidSelectError(req.query.select));
+            console.log('invalid str select test')
+        }
+        else {
+            next();
+        }
+    }
+}
+
 router.use(errorLogger);
 router.use(errorResponder);
-router.use(invalidPathHandler);
+//router.use(invalidPathHandler);
 module.exports = router;

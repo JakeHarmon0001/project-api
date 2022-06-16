@@ -2,32 +2,69 @@
  * Contains custome error classes that will be thrown in the companies route 
  * @author Jake Harmon 
  */
-
+ const utility = require("/home/ubuntu/project-api/Utilities.js");
 /**
  * Error for invalid Id's
  */
+// class InvalidIdError extends Error {
+//     constructor(id) {
+//         super();
+//         this.name = this.constructor.name;
+
+//         if(this instanceof LengthError) {
+//             this.type = 'Incorrectlength';
+//             this.statusCode = 401;
+//             this.message = 'ERROR WITH ID: '+ id +'. IDs Must be four digits long';
+//         }
+//         else if(this instanceof NaNError) {
+//             this.type = "NaN";
+//             this.statusCode = 401;
+//             this.message =  'The ID: '+ id +' is not a number';
+//         }
+//         else if(this instanceof NonExistingError) {
+//             this.type = "NonExisting";
+//             this.statusCode = 404;
+//             this.message = "NO COMPANY EXISTS WITH ID: " + id;
+//         }
+//         else{
+//             this.message = "SOMETHING WENT WRONG, You still have an invalid ID";
+//             this.statusCode = 404;
+//         }
+
+//     }
+// }
+
 class InvalidIdError extends Error {
     constructor(id) {
         super();
         this.name = this.constructor.name;
-        if(this instanceof LengthError) {
-            this.type = 'Incorrectlength';
+        if(id.length > 4 || id.length < 4) {
+            this.type = 'Length Error';
             this.statusCode = 401;
-            let str = 'The ID: '+ id +' is must be four digits long. ';
+            this.message = 'Invalid length of ID';
         }
-        else if(this instanceof NaNError) {
-            this.type = "NaN";
-            this.statusCode = 401;
-            this.message =  'The ID: '+ id +' is not a number';
-        }
-        else if(this instanceof NonExistingError) {
-            this.type = "NonExisting";
+        else if(!(utility.isIdDuplicate(id))) {
+            this.type = 'No company attached';
             this.statusCode = 404;
-            this.message = "NO COMPANY EXISTS WITH ID: " + id;
+            this.message = 'No company assigned with this id' + id;
         }
-        
+        else if(id < 0) {
+            this.type = 'Less than 0';
+            this.statusCode = 401;
+            this.message = 'Id entered must be greater than 0';
+        }
+        else {
+            this.statusCode = 418;
+            this.message = 'something has went wrong'
+        }
+
+
+
+
 
     }
+
+
 }
 
 /**

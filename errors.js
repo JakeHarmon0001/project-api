@@ -92,8 +92,18 @@ class InvalidCompanyError extends Error {
 
 }
 
+class DuplicateError extends Error {
+    constructor(id) {
+
+        super();
+        this.name = constructor.name;
+        this.message = "THere is already a company with ID: " + id;
+        this.statusCode = 401;
+    }
+
+ }
 class LengthError extends InvalidIdError { }
 class NaNError extends InvalidIdError { }
 class NonExistingError extends InvalidIdError { }
 
-module.exports = {InvalidIdError,LengthError,NaNError,NonExistingError, InvalidSelectError, InvalidCompanyError};
+module.exports = {InvalidIdError,LengthError,NaNError,NonExistingError, InvalidSelectError, InvalidCompanyError, DuplicateError};

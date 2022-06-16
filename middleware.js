@@ -22,7 +22,7 @@ const errorResponder = (err, req, res, next) => {
  * @param {*} next 
  */
 const errorLogger = (err, req, res, next) => {
-  console.error('\x1b[35m', err) ;// adding some color to our logs
+  console.error('\x1b[33m', err) ;// adding some color to our logs
   next(err); // calling next middleware
 }
 

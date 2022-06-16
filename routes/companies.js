@@ -5,10 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const data = require('../Data/fake-data'); //importing data from fake-data.js
-const utility = require("/home/ubuntu/project-api/Utilities.js");
+const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
 
 const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
-const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError } = require('/home/ubuntu/project-api/errors');
+const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError } = require('/home/ubuntu/project-api/errors');
 
 router.get('', (req, res) => { //returns all companies in fakeData
     res.status(200).json(data.fakeData);
@@ -47,25 +47,11 @@ router.get('/:id', idValidate, queryValidate, (req, res) => {
 /**
  *  *POST Allows the client to post a new company object into the fakeData array 
  */
-router.post('/', (req, res) => {
+router.post('/', companyValidate, (req, res) => {
     const currComp = req.body; //storing the body data in a new object 
     let isDuplicate = false;
-    if (!(utility.isCompanyValid(currComp))) {
-        res.status(400).send("Incorrect syntax for the body"); //makes sure all the values are initialized and valid 
-    }
-    else if (!(utility.isValidId(currComp.id))) { //checking for incorrect id length
-        res.status(400).send("Incorrect ID length in the body");
-    }
-    else { //checking for a duplicate id 
-        isDuplicate = utility.isIdDuplicate(currComp.id);
-    }
-    if (isDuplicate) {
-        res.status(400).send("There is already a company with the ID: " + currComp.id);
-    }
-    else { //if no errors are present, adds new company object to fakeData
         data.fakeData.push(currComp); // adding new company to the fakeData array
         res.status(201).send("New Company object has been created with an id of: " + currComp.id);
-    }
 });
 
 /** 
@@ -116,10 +102,10 @@ router.put('/', (req, res) => {
  */
 function idValidate(req, res, next) {
 
-    if (!(utility.isValidId(req.params.id))) {
+    if (!(utility.isValidId(req.params.id))) { //makes sure the id is valid 
         next(new InvalidIdError(req.params.id));
     }
-    else {
+    else { //else moves on
         next();
     }
 
@@ -131,22 +117,43 @@ function idValidate(req, res, next) {
  * @param {*} next 
  */
 function queryValidate(req, res, next) {
-
-    if (req.query.select === undefined) {
+    if (req.query.select === undefined) { //if there is no query, moves on 
         next();
     }
     else {
-        if (Array.isArray(req.query.select) && !(utility.isValidSelectArray(req.query.select))) {
+        if (Array.isArray(req.query.select) && !(utility.isValidSelectArray(req.query.select))) { // case for multiple selects
             next(new InvalidSelectError(req.query.select));
             console.log("invalid array select test")
         }
-        else if (typeof req.query.select !== Array && !(utility.isValidSelectStr(req.query.select))) {
+        else if (typeof req.query.select !== Array && !(utility.isValidSelectStr(req.query.select))) { //case for one select
             next(new InvalidSelectError(req.query.select));
             console.log('invalid str select test')
         }
-        else {
+        else { //else, moves on 
             next();
         }
+    }
+}
+
+/**
+ * Validates company data by checking the body of the request
+ * ! Doesnt work right now !
+ * @param {} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function companyValidate(req,res,next) {
+    let tempObj = req.body; // putting the req body into an object for validation
+    if((utility.isCompanyValid(tempObj))) { // if company is valid checks for a duplicate id
+        if((utility.isIdDuplicate(tempObj.id))) {
+            next(new DuplicateError(tempObj.id));
+        }else{
+            next(); //moves on 
+        }
+        
+    }
+    else { //else, throws an error
+        next(new InvalidCompanyError);
     }
 }
 

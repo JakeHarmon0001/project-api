@@ -1,5 +1,6 @@
 /**
  * Contains middleware functions to be used in app.js and companies.js
+ * @author Jake Harmon
  */
 
 /**

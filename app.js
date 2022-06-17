@@ -1,3 +1,8 @@
+/**
+ * Main app for project-api
+ * @author Jake Harmon 
+ */
+
 const express = require('express');
 const app = express();
 const port = 3000;

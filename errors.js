@@ -2,53 +2,25 @@
  * Contains custome error classes that will be thrown in the companies route 
  * @author Jake Harmon 
  */
- const utility = require("/home/ubuntu/project-api/Utilities.js");
+const utility = require("/home/ubuntu/project-api/Utilities.js");
 /**
- * Error for invalid Id's
+ * Error for invalid id's
  */
-// class InvalidIdError extends Error {
-//     constructor(id) {
-//         super();
-//         this.name = this.constructor.name;
-
-//         if(this instanceof LengthError) {
-//             this.type = 'Incorrectlength';
-//             this.statusCode = 401;
-//             this.message = 'ERROR WITH ID: '+ id +'. IDs Must be four digits long';
-//         }
-//         else if(this instanceof NaNError) {
-//             this.type = "NaN";
-//             this.statusCode = 401;
-//             this.message =  'The ID: '+ id +' is not a number';
-//         }
-//         else if(this instanceof NonExistingError) {
-//             this.type = "NonExisting";
-//             this.statusCode = 404;
-//             this.message = "NO COMPANY EXISTS WITH ID: " + id;
-//         }
-//         else{
-//             this.message = "SOMETHING WENT WRONG, You still have an invalid ID";
-//             this.statusCode = 404;
-//         }
-
-//     }
-// }
-
 class InvalidIdError extends Error {
     constructor(id) {
         super();
         this.name = this.constructor.name;
-        if(id.length > 4 || id.length < 4) {
+        if (id.length > 4 || id.length < 4) {
             this.type = 'Length Error';
             this.statusCode = 401;
             this.message = 'Invalid length of ID';
         }
-        else if(!(utility.isIdDuplicate(id))) {
+        else if (!(utility.isIdDuplicate(id))) {
             this.type = 'No company attached';
             this.statusCode = 404;
-            this.message = 'No company assigned with this id' + id;
+            this.message = 'No company assigned with this id: ' + id;
         }
-        else if(id < 0) {
+        else if (id < 0) {
             this.type = 'Less than 0';
             this.statusCode = 401;
             this.message = 'Id entered must be greater than 0';
@@ -57,14 +29,7 @@ class InvalidIdError extends Error {
             this.statusCode = 418;
             this.message = 'something has went wrong'
         }
-
-
-
-
-
     }
-
-
 }
 
 /**
@@ -83,27 +48,38 @@ class InvalidSelectError extends Error {
  * Error for invalid company objects 
  */
 class InvalidCompanyError extends Error {
-        constructor() {
-            super();
-            this.name = constructor.name;
-            this.message = "Incorrect instance variables entered for company object";
-            this.statusCode = 401;
-        }
-
+    constructor() {
+        super();
+        this.name = constructor.name;
+        this.message = "Incorrect instance variables entered for company object";
+        this.statusCode = 401;
+    }
 }
-
+/**
+ * Error for duplicate id's
+ */
 class DuplicateError extends Error {
     constructor(id) {
 
         super();
         this.name = constructor.name;
-        this.message = "THere is already a company with ID: " + id;
+        this.message = "There is already a company with ID: " + id;
         this.statusCode = 401;
     }
-
- }
+}
+/**
+ * Error for companies that don't exist
+ */
+class DoesntExistError extends Error {
+    constructor(id) {
+        super();
+        this.name = constructor.name;
+        this.message = "There is no company with ID: " + id;
+        this.statusCode = 404;
+    }
+}
 class LengthError extends InvalidIdError { }
 class NaNError extends InvalidIdError { }
 class NonExistingError extends InvalidIdError { }
 
-module.exports = {InvalidIdError,LengthError,NaNError,NonExistingError, InvalidSelectError, InvalidCompanyError, DuplicateError};
+module.exports = { InvalidIdError, LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, DuplicateError, DoesntExistError };

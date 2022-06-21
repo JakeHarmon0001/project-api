@@ -22,7 +22,8 @@ app.get('/', (req, res) => {
 const companyRouter = require('./routes/companies'); 
 app.use('/companies', companyRouter); //using the company route
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`app.js listening on port ${port}`);
 });
 
+module.exports = server;

@@ -18,9 +18,9 @@ function isValidId(id) {
     if (id == undefined) {
         return false;
     }
-    else if (typeof id === String) {
-        return false;
-    }
+    // else if (typeof id === String) {
+    //     return false;
+    // }
     else if (id.length < 4 || id.length > 4) {
         return false;
     }

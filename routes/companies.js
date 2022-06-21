@@ -11,12 +11,12 @@ const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubun
 const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');
 
 router.get('', (req, res) => { //returns all companies in fakeData
-    res.status(200).json(data.fakeData);
+    res.status(200).json(data.fakeData); 
 });
 /**
  *+GET Allows client to get the data of specific companies 
  */
-router.get('/:id', idValidate, queryValidate, companyExistsValidate, (req, res) => {
+router.get('/:id', idValidate, queryValidate,  (req, res) => {
 
     const id = req.params.id; //assigning the id variable to value in the url
     const select = req.query.select; //variable containing value representing instance variable to be returned from object
@@ -45,7 +45,7 @@ router.get('/:id', idValidate, queryValidate, companyExistsValidate, (req, res) 
 });
 
 /**
- * +POST Allows the client to post a new company object into the fakeData array 
+ *+POST Allows the client to post a new company object into the fakeData array 
  */
 router.post('/', companyVarsValidate, (req, res) => {
     const currComp = req.body; //storing the body data in a new object 
@@ -56,13 +56,13 @@ router.post('/', companyVarsValidate, (req, res) => {
 /** 
 *+DELETE Allows the client to delete a company object that is in the fakeData array 
 */
-router.delete('/:id', idValidate, companyExistsValidate, (req, res) => {
+router.delete('/:id', idValidate,  (req, res) => {
     const id = req.params.id;
     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
         return (company.id === id);
     });
     utility.removeFromArray(currCompany.id, data.fakeData); //removing desired company from array
-    res.status(201).send("The company with the ID: " + id + " has been deleted");
+    res.status(200).send("The company with the ID: " + id + " has been deleted");
 });
 
 /** 
@@ -82,14 +82,12 @@ router.put('/', companyExistsValidate, companyVarsValidate, (req, res) => {
  * @param {*} next 
  */
 function idValidate(req, res, next) {
-
     if (!(utility.isValidId(req.params.id))) { //makes sure the id is valid 
         next(new InvalidIdError(req.params.id));
     }
     else { //else moves on
         next();
     }
-
 }
 /**
  *-Function that tests whether a query is valid
@@ -108,7 +106,7 @@ function queryValidate(req, res, next) {
         }
         else if (typeof req.query.select !== Array && !(utility.isValidSelectStr(req.query.select))) { //case for one select
             next(new InvalidSelectError(req.query.select));
-            console.log('invalid str select test')
+            console.log('invalid 0str select test')
         }
         else { //else, moves on 
             next();
@@ -125,24 +123,21 @@ function queryValidate(req, res, next) {
 function companyVarsValidate(req, res, next) {
     let tempObj = req.body; // putting the req body into an object for validation
     if ((utility.isCompanyValid(tempObj))) { // if company is valid checks for a duplicate id
-        if ((utility.isIdDuplicate(tempObj.id))) {
-            next(new DuplicateError(tempObj.id));
-        } else {
             next(); //moves on 
-        }
     }
     else { //else, throws an error
         next(new InvalidCompanyError);
     }
 }
 /**
- *-Validates that an company with the given ID exists 
+ *!NEED TO LOOK AT, IS CAUSING PROBLEMS
  * @param {*} req 
  * @param {*} res 
  * @param {*} next 
+ * -Careful using this in get because the id is not passed in the request body and will cause problems 
  */
 function companyExistsValidate(req, res, next) {
-    const id = req.body.id;
+    const id = req.body.id; 
 
     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
         return (company.id === id);

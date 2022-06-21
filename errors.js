@@ -1,32 +1,32 @@
 /**
- * Contains custome error classes that will be thrown in the companies route 
+ * Contains custom error classes that will be thrown in the companies route 
  * @author Jake Harmon 
  */
-const utility = require("/home/ubuntu/project-api/Utilities.js");
+const utility = require("/home/ubuntu/project-api/Utilities.js")
 /**
  * Error for invalid id's
  */
 class InvalidIdError extends Error {
     constructor(id) {
-        super();
-        this.name = this.constructor.name;
+        super()
+        this.name = this.constructor.name
         if (id.length > 4 || id.length < 4) {
-            this.type = 'Length Error';
-            this.statusCode = 401;
-            this.message = 'Invalid length of ID';
+            this.type = 'Length Error'
+            this.statusCode = 401
+            this.message = 'Invalid length of ID'
         }
         else if (!(utility.isIdDuplicate(id))) {
-            this.type = 'No company attached';
-            this.statusCode = 404;
-            this.message = 'No company assigned with this id: ' + id;
+            this.type = 'No company attached'
+            this.statusCode = 404
+            this.message = 'No company assigned with this id: ' + id
         }
         else if (id < 0) {
-            this.type = 'Less than 0';
-            this.statusCode = 401;
-            this.message = 'Id entered must be greater than 0';
+            this.type = 'Less than 0'
+            this.statusCode = 401
+            this.message = 'Id entered must be greater than 0'
         }
         else {
-            this.statusCode = 418;
+            this.statusCode = 418
             this.message = 'something has went wrong'
         }
     }
@@ -37,10 +37,10 @@ class InvalidIdError extends Error {
  */
 class InvalidSelectError extends Error {
     constructor(select) {
-        super();
-        this.name = constructor.name;
-        this.message = "One or more invalid select value(s): " + select;
-        this.statusCode = 401;
+        super()
+        this.name = constructor.name
+        this.message = "One or more invalid select value(s): " + select
+        this.statusCode = 401
     }
 }
 
@@ -49,10 +49,10 @@ class InvalidSelectError extends Error {
  */
 class InvalidCompanyError extends Error {
     constructor() {
-        super();
-        this.name = constructor.name;
-        this.message = "Incorrect instance variables entered for company object";
-        this.statusCode = 401;
+        super()
+        this.name = constructor.name
+        this.message = "Incorrect instance variables entered for company object"
+        this.statusCode = 401
     }
 }
 /**
@@ -61,10 +61,10 @@ class InvalidCompanyError extends Error {
 class DuplicateError extends Error {
     constructor(id) {
 
-        super();
-        this.name = constructor.name;
-        this.message = "There is already a company with ID: " + id;
-        this.statusCode = 401;
+        super()
+        this.name = constructor.name
+        this.message = "There is already a company with ID: " + id
+        this.statusCode = 401
     }
 }
 /**
@@ -72,14 +72,14 @@ class DuplicateError extends Error {
  */
 class DoesntExistError extends Error {
     constructor(id) {
-        super();
-        this.name = constructor.name;
-        this.message = "There is no company with ID: " + id;
-        this.statusCode = 404;
+        super()
+        this.name = constructor.name
+        this.message = "There is no company with ID: " + id
+        this.statusCode = 404
     }
 }
 class LengthError extends InvalidIdError { }
 class NaNError extends InvalidIdError { }
 class NonExistingError extends InvalidIdError { }
 
-module.exports = { InvalidIdError, LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, DuplicateError, DoesntExistError };
+module.exports = { InvalidIdError, LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, DuplicateError, DoesntExistError }

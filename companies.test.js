@@ -23,6 +23,17 @@ describe("GET test", () => {
   })
 })
 
+describe("GET FAIL test", () => {
+  test("GET FAIL /", (done) => {
+    request(app)
+    .get("/companies/1000")
+    .expect(404)
+    .end((err, res) => {
+      if (err) return done(err)
+      return done()
+    })
+  })
+})
 /**
  * +Testing post function
  */
@@ -32,7 +43,7 @@ describe("POST test", () => {
     .post("/companies")
     // .expect("Content-Type", /json/)
     .send({
-      id: "0030",
+      id: "0040",
       name: "Test Company",
       email: "Test@gmail.com",
       owner: "Larry Selensky",
@@ -40,6 +51,27 @@ describe("POST test", () => {
       location: "Knowwhere"
     })
     .expect(201)
+    .end((err, res) => {
+      if (err) return done(err)
+      return done()
+    })
+  })
+})
+
+describe("POST FAIL test", () => {
+  test("Post FAIL /", (done) => {
+    request(app)
+    .post("/companies")
+    // .expect("Content-Type", /json/)
+    .send({
+      id: "0010",
+      name: "Test Company",
+      email: "Test@gmail.com",
+      owner: "Larry Selensky",
+      phoneNumber: "(800) 800 8000",
+      location: "Knowwhere"
+    })
+    .expect(404)
     .end((err, res) => {
       if (err) return done(err)
       return done()
@@ -55,6 +87,18 @@ describe("DELETE test", () => {
     request(app)
     .delete("/companies/0001")
     .expect(200)
+    .end((err, res) => {
+      if (err) return done(err)
+      return done()
+    })
+  })
+})
+
+describe("DELETE FAIL test", () => {
+  test("Delete FAIL /", (done) => {
+    request(app)
+    .delete("/companies/0000")
+    .expect(404)
     .end((err, res) => {
       if (err) return done(err)
       return done()
@@ -78,6 +122,26 @@ describe("PUT test", () => {
       location: "Knowwhere"
     })
     .expect(200)
+    .end((err, res) => {
+      if (err) return done(err)
+      return done()
+    })
+  })
+})
+
+describe("PUT FAIL test", () => {
+  test("PUT FAIL /", (done) => {
+    request(app)
+    .put("/companies")
+    .send({
+      id: "0030",
+      name: "Test Company",
+      email: "Test@gmail.com",
+      owner: "Larry Selensky",
+      phoneNumber: "(800) 800 8000",
+      location: "Knowwhere"
+    })
+    .expect(404)
     .end((err, res) => {
       if (err) return done(err)
       return done()

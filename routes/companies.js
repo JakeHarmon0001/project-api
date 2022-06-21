@@ -16,7 +16,7 @@ router.get('', (req, res) => { //returns all companies in fakeData
 /**
  *+GET Allows client to get the data of specific companies 
  */
-router.get('/:id', idValidate, queryValidate,  (req, res) => {
+router.get('/:id', idValidate, queryValidate, companyExistsValidate,  (req, res) => {
 
     const id = req.params.id; //assigning the id variable to value in the url
     const select = req.query.select; //variable containing value representing instance variable to be returned from object
@@ -47,7 +47,7 @@ router.get('/:id', idValidate, queryValidate,  (req, res) => {
 /**
  *+POST Allows the client to post a new company object into the fakeData array 
  */
-router.post('/', companyVarsValidate, (req, res) => {
+router.post('/', companyVarsValidate, companyDoesntExistsBody, (req, res) => {
     const currComp = req.body; //storing the body data in a new object 
     data.fakeData.push(currComp); // adding new company to the fakeData array
     res.status(201).send("New Company object has been created with an id of: " + currComp.id);
@@ -56,7 +56,7 @@ router.post('/', companyVarsValidate, (req, res) => {
 /** 
 *+DELETE Allows the client to delete a company object that is in the fakeData array 
 */
-router.delete('/:id', idValidate,  (req, res) => {
+router.delete('/:id', idValidate, companyExistsValidate, (req, res) => {
     const id = req.params.id;
     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
         return (company.id === id);
@@ -68,7 +68,7 @@ router.delete('/:id', idValidate,  (req, res) => {
 /** 
 *+PUT Allows the client to change instance variables of a company currently in the fakeData array
 */
-router.put('/', companyExistsValidate, companyVarsValidate, (req, res) => {
+router.put('/', companyExistsValidateBody, companyVarsValidate, (req, res) => {
     const currComp = req.body; // creating an instance of a company by what is defined in the body
     utility.replaceCompany(currComp); //replacing company
     res.status(200).send("Company object has been replaced");
@@ -137,6 +137,20 @@ function companyVarsValidate(req, res, next) {
  * -Careful using this in get because the id is not passed in the request body and will cause problems 
  */
 function companyExistsValidate(req, res, next) {
+    const id = req.params.id; 
+
+    const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
+        return (company.id === id);
+    });
+    if (currCompany === undefined) {
+        next(new DoesntExistError(id));
+    }
+    else {
+        next();
+    }
+}
+
+function companyExistsValidateBody(req, res, next) {
     const id = req.body.id; 
 
     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
@@ -150,6 +164,19 @@ function companyExistsValidate(req, res, next) {
     }
 }
 
+function companyDoesntExistsBody(req, res, next) {
+    const id = req.body.id; 
+
+    const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match 
+        return (company.id === id);
+    });
+    if (currCompany !== undefined) {
+        next(new DoesntExistError(id));
+    }
+    else {
+        next();
+    }
+}
 router.use(errorLogger); //logs errors
 router.use(errorResponder); //responds to errors
 module.exports = router;

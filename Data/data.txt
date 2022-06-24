@@ -1,0 +1,6 @@
+{id: "0020", name: "Test", email: "test@gmail.com", owner: "guy", phoneNumber: "800 800 8000", location: "Antarctica" }
+{id: "0030", name: "Test2", email: "test2@gmail.com", owner: "guy2", phoneNumber: "800 800 8002", location: "Iowa" }
+{id: "0040", name: "Test3", email: "test3@gmail.com", owner: "guy3", phoneNumber: "800 800 8003", location: "North Dakota" }
+{id: "0050", name: "Test4", email: "test4@gmail.com", owner: "guy4", phoneNumber: "800 800 8004", location: "Minnesota" }
+{id: "0060", name: "Test5", email: "test5@gmail.com", owner: "guy5", phoneNumber: "800 800 8005", location: "Congo" }
+{id: "0070", name: "Test6", email: "test6@gmail.com", owner: "guy6", phoneNumber: "800 800 8006", location: "Myanmar" }

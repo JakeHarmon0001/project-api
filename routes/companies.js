@@ -7,40 +7,49 @@ const router = express.Router();
 const dotenv =  require("dotenv").config();
 const data = require('../Data/fake-data'); //importing data from fake-data.js
 const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
+const company = require("../schema")
 
 //getting conection to mongo database
-var mongoose = require('mongoose');
-const mongoDB = "mongodb+srv://jakeharmon11:073307ZoeyChar@apicluster0.0lokkaj.mongodb.net/?retryWrites=true&w=majority"
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true})
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+// var mongoose = require('mongoose');
+// const mongoDB = "mongodb+srv://jakeharmon11:073307ZoeyChar@apicluster0.0lokkaj.mongodb.net/?retryWrites=true&w=majority"
+// mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true})
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+
+const mongoose = require("mongoose");
+// Connecting to database
+mongoose.connect(
+  "mongodb+srv://jakeharmon11:073307ZoeyChar@apicluster0.0lokkaj.mongodb.net/local_library?retryWrites=true&w=majority",
+  {
+    dbName: "apicluster0",
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) =>
+    err ? console.log(err) : console.log(
+      "Connected to yourDB-name database")
+);
+const db = mongoose.connection;
 
 
 
-// This section will help you get a list of all the documents.
-router.route("/test").get(async function (req, res) {
-    //const dbConnect = mongoose.getDb();
-
-    db
-      .collection("local_library.companies")
-      .find({}).limit(50)
-      .toArray(function (err, result) {
-        if (err) {
-          res.status(400).send("Error fetching listings!");
-       } else {
-          res.json(result);
+router.get('/test', (req, res) => {
+    company.find({}, (err, found) => {
+        if (!err) {
+            res.send(found);
         }
-      });
-  });
-
-const collection = db.collection('local_library.companies');
-collection.count
+        console.log(err);
+        res.send("Some error occured!")
+    })
+});
+// const collection = db.collection('local_library.companies');
+// collection.count
 const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
 const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');
 
 router.get('', (req, res) => { //returns all companies in fakeData
     res.status(200).json(data.fakeData); 
-    
+    //res.status(200).json(db.collection("companies").toString()); //testing database access
 });
 /**
  *+GET Allows client to get the data of specific companies 

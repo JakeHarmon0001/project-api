@@ -9,7 +9,9 @@ const dotenv =  require("dotenv").config();
 
 
 const data = require('../Data/fake-data'); //importing data from fake-data.js
-const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
+//const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
+const utility = require(".../Utilities.js"); //importing functions from Utilities.js
+
 const schema = require("../schema")
 
 
@@ -37,8 +39,11 @@ router.get('test', (req, res) => { //returns all companies in fakeData
     }
 });
 
-const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
-const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');
+// const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
+const { errorResponder, errorLogger, invalidPathHandler, } = require('.../middleware.js')
+
+// const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');
+const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('.../errors');
 
 router.get('', (req, res) => { //returns all companies in fakeData
     res.status(200).json(data.fakeData); 

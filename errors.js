@@ -1,8 +1,8 @@
 /**
- * Contains custom error classes that will be thrown in the companies route 
- * @author Jake Harmon 
+ * Contains custom error classes that will be thrown in the companies route
+ * @author Jake Harmon
  */
-const utility = require("/home/ubuntu/project-api/Utilities.js")
+const utility = require("./Utilities.js")
 /**
  * Error for invalid id's
  */
@@ -45,7 +45,7 @@ class InvalidSelectError extends Error {
 }
 
 /**
- * Error for invalid company objects 
+ * Error for invalid company objects
  */
 class InvalidCompanyError extends Error {
     constructor() {

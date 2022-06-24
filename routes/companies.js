@@ -3,8 +3,11 @@
  * @author Jake Harmon
  */
 const express = require('express');
+
 const router = express.Router();
 const dotenv =  require("dotenv").config();
+
+
 const data = require('../Data/fake-data'); //importing data from fake-data.js
 const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
 
@@ -33,8 +36,7 @@ router.route("/test").get(async function (req, res) {
       });
   });
 
-const collection = db.collection('local_library.companies');
-collection.count
+
 const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
 const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');
 

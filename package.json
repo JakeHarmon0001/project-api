@@ -1,0 +1,27 @@
+{
+  "name": "project-api",
+  "version": "1.0.0",
+  "description": "Ovation internship project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main",
+    "test": "jest --runInBand  --force-exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@beast.ovationn.com:jharmon/project-api.git"
+  },
+  "keywords": [
+    "api"
+  ],
+  "author": "Jake Harmon",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "jest": "^28.1.1",
+    "supertest": "^6.2.3"
+  }
+}

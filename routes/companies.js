@@ -37,7 +37,7 @@ mongoose.connect(
 );
 const db = mongoose.connection;
 
-const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test');
+//const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test');
 
 
 // router.get('/test', (req, res) => {
@@ -49,9 +49,9 @@ const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test'
 //   });
 
  router.get('/test', (req, res) => {
-    const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test');
+    const compTest = schema.companySchema('test', 'test', 'test', 'test', 'test', 'test');
     try {
-        const res = await companySchema.create(compTest)
+        const res =  companySchema.create(compTest)
     } catch(err) {
         console.error(err)
         // handle the error

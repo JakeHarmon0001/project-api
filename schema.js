@@ -12,5 +12,6 @@ const companySchema = new Schema({
 });
 
 
+companySchema.index({id: "test", name: "test", email: "test", owner: "test", phoneNumber: "test", location: "test"});
 const companyModel = model('Company', companySchema);
 module.exports =  {companyModel, companySchema};

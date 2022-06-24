@@ -13,15 +13,6 @@ const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing fu
 const schema = require("../schema")
 
 
-
-
-//getting conection to mongo database
-// var mongoose = require('mongoose');
-// const mongoDB = "mongodb+srv://jakeharmon11:073307ZoeyChar@apicluster0.0lokkaj.mongodb.net/?retryWrites=true&w=majority"
-// mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true})
-// var db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'MongoDB connection error:'))
-
 const mongoose = require("mongoose");
 // Connecting to database
 mongoose.connect(
@@ -37,26 +28,14 @@ mongoose.connect(
 );
 const db = mongoose.connection;
 
-const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test');
-
-
-// router.get('/test', (req, res) => {
-//     company.find({}, (err, found) => {
-//         if (!err) {
-//             res.send(found);
-//         }
-//       });
-//   });
-
- router.get('/test', (req, res) => {
-    const compTest = new companyModel('test', 'test', 'test', 'test', 'test', 'test');
+router.get('test', (req, res) => { //returns all companies in fakeData
     try {
-        const res = await companySchema.create(compTest)
-    } catch(err) {
-        console.error(err)
+        const res = await companySchema.create(record)
+    } catch(error) {
+        console.error(error)
         // handle the error
     }
-   });
+});
 
 const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
 const { LengthError, NaNError, NonExistingError, InvalidSelectError, InvalidCompanyError, InvalidIdError, DuplicateError, DoesntExistError } = require('/home/ubuntu/project-api/errors');

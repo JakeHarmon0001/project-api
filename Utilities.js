@@ -5,7 +5,7 @@
 
 const data = require('./Data/fake-data');
 const express = require('express');
-
+const Company = require("./models/company")
 
 /**
  * Tests whether the given id is valid
@@ -176,4 +176,24 @@ function isValidSelectStr(str) {
     return true; 
 }
 
-module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr };
+async function getCompany(req, res, next) {
+    let company = undefined; //company object
+    try {
+    company = await Company.find({'compId' : req.params.id}) //finding company document in db with matching compId
+    if(company === undefined ) { //simple validation
+     console.log("ERROR") 
+     return res.status(404).json('cannot find company')
+     }
+    } catch(err) {
+        return res.status(500).json(err.message)
+    }
+
+    res.company = company //assigning company to res value so it can be accessed in other functions
+    next()
+}
+
+
+
+
+
+module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr, getCompany };

@@ -12,32 +12,96 @@ const data = require('../Data/fake-data'); //importing data from fake-data.js
 //const utility = require("/home/ubuntu/project-api/Utilities.js"); //importing functions from Utilities.js
 const utility = require("../Utilities.js"); //importing functions from Utilities.js
 
-const schema = require("../schema")
-
-
+const Company = require("../models/company")
 const mongoose = require("mongoose");
 // Connecting to database
-mongoose.connect(
-  "mongodb+srv://jakeharmon11:073307ZoeyChar@apicluster0.0lokkaj.mongodb.net/local_library?retryWrites=true&w=majority",
-  {
-    dbName: "apicluster0",
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  (err) =>
-    err ? console.log(err) : console.log(
-      "Connected to yourDB-name database")
-);
-const db = mongoose.connection;
 
-router.get('test', async (req, res) => { //returns all companies in fakeData
+mongoose.connect(process.env.MONGODB_URL, {useNewUrlParser: true})
+const db = mongoose.connection
+db.on('error', (error) => console.error(error))
+db.once('open', () => console.log("Connected to database"))
+
+
+router.get('', async (req, res) => { //returns all companies in database
     try {
-        const res = await companySchema.create(record)
+        const companies = await Company.find(); //finds all documents mathcing copmany schema
+        res.json(companies);
     } catch(error) {
         console.error(error)
         // handle the error
     }
-});
+})
+
+router.get('/:id', utility.getCompany, async (req, res) => { //returns a company from the database 
+    try {
+        //const company = res.company; //finds all documents mathcing copmany schema
+        res.status(201).json(res.company);
+    } catch(error) {
+        res.send("ERROR")
+        // handle the error
+    }
+})
+
+router.post('/', async (req, res) => {
+
+    const company = new Company({
+        compId: req.body.compId,
+        name: req.body.name,
+        email: req.body.email,
+        owner: req.body.owner,
+        phoneNumber: req.body.phoneNumber,
+        location: req.body.location
+    })
+    try {
+        const newCompany = await company.save()
+        res.status(201).json(newCompany);
+    } catch(error) {
+        console.error(error)
+    }
+
+})
+
+router.delete('/:id', utility.getCompany, async (req, res) => {
+    try {
+        const outcome = await (Company.deleteOne({'compId' : '0030'}));
+       
+        res.status(200).send(outcome)
+    } catch(err) {
+        res.status(404).json("Unable to delete")
+    }
+
+})
+
+router.patch('/:id', utility.getCompany, async (req, res) => {
+    if(req.body.compId != null) {
+        res.company.compId = req.body.compId
+    }
+    if(req.body.name != null) {
+        res.company.name = req.body.name
+    }
+    if(req.body.email != null) {
+        res.company.email = req.body.email
+    }
+    if(req.body.owner != null) {
+        res.company.owner = req.body.owner
+    }
+    if(req.body.phoneNumber != null) {
+        res.company.phoneNumber = req.body.phoneNumber
+    }
+    if(req.body.location != null) {
+        res.company.location = req.body.location
+    }
+
+    try {
+       // const updatedCompany = await res.company.save()
+        res.json(await res.company.save())
+    }
+    catch(err) {
+        res.send(err);
+    }
+}) 
+
+
 
 // const { errorResponder, errorLogger, invalidPathHandler, } = require('/home/ubuntu/project-api/middleware.js')
 const { errorResponder, errorLogger, invalidPathHandler, } = require('../middleware.js')
@@ -54,70 +118,70 @@ const {
   DoesntExistError
 } = require('../errors');
 
-router.get('', (req, res) => { //returns all companies in fakeData
-    res.status(200).json(data.fakeData);
-    //res.status(200).json(db.collection("companies").toString()); //testing database access
-});
+// router.get('', (req, res) => { //returns all companies in fakeData
+//     res.status(200).json(data.fakeData);
+//     //res.status(200).json(db.collection("companies").toString()); //testing database access
+// });
 /**
  *+GET Allows client to get the data of specific companies
  */
-router.get('/:id', idValidate, queryValidate, companyExistsValidate,  (req, res) => {
+// router.get('/:id', idValidate, queryValidate, companyExistsValidate,  (req, res) => {
 
-    const id = req.params.id; //assigning the id variable to value in the url
-    const select = req.query.select; //variable containing value representing instance variable to be returned from object
-    let tempComp = {}; //blank object to be filled with data and returned
+//     const id = req.params.id; //assigning the id variable to value in the url
+//     const select = req.query.select; //variable containing value representing instance variable to be returned from object
+//     let tempComp = {}; //blank object to be filled with data and returned
 
-    const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match
-        return (company.id === id);
-    });
+//     const currCompany = data.fakeData.find(function (company) {//using array.find to find a id match
+//         return (company.id === id);
+//     });
 
-    tempComp = currCompany; //assigning currCompany to return object as it will be returned if none of the if statements are triggered
+//     tempComp = currCompany; //assigning currCompany to return object as it will be returned if none of the if statements are triggered
 
-    //if statements checking if select has value(s)
-    if (select != undefined && !(Array.isArray(select))) { //if there are values for selects continues into the body
-        //if there arent multiple selects, continues into the body and returns whatever instance variable is requested
-        tempComp = {};
-        utility.getCompanyDataStr(currCompany, select, tempComp);
-    }//if select is an array/multiple variables are selected, iterates array concatenating requested instance variables
-    else if (select != undefined && Array.isArray(select)) {
-        tempComp = {};
-        utility.getCompanyData(currCompany, select, tempComp);
-    }
+//     //if statements checking if select has value(s)
+//     if (select != undefined && !(Array.isArray(select))) { //if there are values for selects continues into the body
+//         //if there arent multiple selects, continues into the body and returns whatever instance variable is requested
+//         tempComp = {};
+//         utility.getCompanyDataStr(currCompany, select, tempComp);
+//     }//if select is an array/multiple variables are selected, iterates array concatenating requested instance variables
+//     else if (select != undefined && Array.isArray(select)) {
+//         tempComp = {};
+//         utility.getCompanyData(currCompany, select, tempComp);
+//     }
 
-    if (res.headersSent !== true) { //making sure no other headers have been sent
-        res.status(200).json(tempComp);
-    }
-});
+//     if (res.headersSent !== true) { //making sure no other headers have been sent
+//         res.status(200).json(tempComp);
+//     }
+// });
 
 /**
  *+POST Allows the client to post a new company object into the fakeData array
  */
-router.post('/', companyVarsValidate, companyDoesntExistsBody, (req, res) => {
-    const currComp = req.body; //storing the body data in a new object
-    data.fakeData.push(currComp); // adding new company to the fakeData array
-    res.status(201).send("New Company object has been created with an id of: " + currComp.id);
-});
+// router.post('/', companyVarsValidate, companyDoesntExistsBody, (req, res) => {
+//     const currComp = req.body; //storing the body data in a new object
+//     data.fakeData.push(currComp); // adding new company to the fakeData array
+//     res.status(201).send("New Company object has been created with an id of: " + currComp.id);
+// });
 
 /**
 *+DELETE Allows the client to delete a company object that is in the fakeData array
 */
-router.delete('/:id', idValidate, companyExistsValidate, (req, res) => {
-    const id = req.params.id;
-    const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match
-        return (company.id === id);
-    });
-    utility.removeFromArray(currCompany.id, data.fakeData); //removing desired company from array
-    res.status(200).send("The company with the ID: " + id + " has been deleted");
-});
+// router.delete('/:id', idValidate, companyExistsValidate, (req, res) => {
+//     const id = req.params.id;
+//     const currCompany = data.fakeData.find(function (company) { //using array.find to find a id match
+//         return (company.id === id);
+//     });
+//     utility.removeFromArray(currCompany.id, data.fakeData); //removing desired company from array
+//     res.status(200).send("The company with the ID: " + id + " has been deleted");
+// });
 
 /**
 *+PUT Allows the client to change instance variables of a company currently in the fakeData array
 */
-router.put('/', companyExistsValidateBody, companyVarsValidate, (req, res) => {
-    const currComp = req.body; // creating an instance of a company by what is defined in the body
-    utility.replaceCompany(currComp); //replacing company
-    res.status(200).send("Company object has been replaced");
-});
+// router.put('/', companyExistsValidateBody, companyVarsValidate, (req, res) => {
+//     const currComp = req.body; // creating an instance of a company by what is defined in the body
+//     utility.replaceCompany(currComp); //replacing company
+//     res.status(200).send("Company object has been replaced");
+// });
 
 
 /**

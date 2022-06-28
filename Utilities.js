@@ -76,7 +76,7 @@ function replaceCompany(company) {
  * @returns true if the company is valid/has all of its instance variables filled/not undefined
  */
 function isCompanyValid(company) {
-    if (company.name == undefined || company.id == undefined || company.email == undefined || company.owner == undefined || company.phoneNumber == undefined || company.location == undefined) {
+    if (company.name == undefined || company.compId == undefined || company.email == undefined || company.owner == undefined || company.phoneNumber == undefined || company.location == undefined) {
         return false;
     }
     return true;
@@ -180,7 +180,7 @@ async function getCompany(req, res, next) {
     let company = undefined; //company object
     try {
     company = await Company.find({'compId' : req.params.id}) //finding company document in db with matching compId
-    if(company === undefined ) { //simple validation
+    if(company.compId === undefined) { //simple validation
      console.log("ERROR") 
      return res.status(404).json('cannot find company')
      }

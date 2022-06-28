@@ -25,24 +25,26 @@ db.once('open', () => console.log("Connected to database"))
 router.get('', async (req, res) => { //returns all companies in database
     try {
         const companies = await Company.find(); //finds all documents mathcing copmany schema
-        res.json(companies);
+        res.status(200).json(companies);
     } catch(error) {
         console.error(error)
         // handle the error
     }
 })
 
-router.get('/:id', utility.getCompany, async (req, res) => { //returns a company from the database 
+router.get('/:id',idValidate, utility.getCompany, async (req, res) => { //returns a company from the database 
+    
+    
     try {
         //const company = res.company; //finds all documents mathcing copmany schema
         res.status(201).json(res.company);
     } catch(error) {
-        res.send("ERROR")
+        res.send("could not find document")
         // handle the error
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', bodyValidate, async (req, res) => {
 
     const company = new Company({
         compId: req.body.compId,
@@ -61,44 +63,21 @@ router.post('/', async (req, res) => {
 
 })
 
-router.delete('/:id', utility.getCompany, async (req, res) => {
+router.delete('/:id',idValidate, utility.getCompany, async (req, res) => {
     try {
         const outcome = await (Company.deleteOne({'compId' : '0030'}));
        
-        res.status(200).send(outcome)
+        res.status(200).json(outcome)
     } catch(err) {
-        res.status(404).json("Unable to delete")
+        res.status(404).json("Unable to delete document")
     }
 
 })
 
-router.patch('/:id', utility.getCompany, async (req, res) => {
-    if(req.body.compId != null) {
-        res.company.compId = req.body.compId
-    }
-    if(req.body.name != null) {
-        res.company.name = req.body.name
-    }
-    if(req.body.email != null) {
-        res.company.email = req.body.email
-    }
-    if(req.body.owner != null) {
-        res.company.owner = req.body.owner
-    }
-    if(req.body.phoneNumber != null) {
-        res.company.phoneNumber = req.body.phoneNumber
-    }
-    if(req.body.location != null) {
-        res.company.location = req.body.location
-    }
-
-    try {
-       // const updatedCompany = await res.company.save()
-        res.json(await res.company.save())
-    }
-    catch(err) {
-        res.send(err);
-    }
+router.patch('/:id',idValidate, utility.getCompany, async (req, res) => {
+    const update = req.body
+    db.collection('companies').updateOne({'compId' : req.params.id}, {$set: update})
+    res.json({message: "document succesfuly updated"})
 }) 
 
 
@@ -285,6 +264,22 @@ function companyDoesntExistsBody(req, res, next) {
     else {
         next();
     }
+}
+
+function bodyValidate(req,res,next) {
+    const curr = req.body;
+    if(curr.compId == undefined 
+        || curr.name == undefined 
+        || curr.email == undefined 
+        || curr.owner == undefined 
+        || curr.location == undefined 
+        || curr.phoneNumber == undefined) {
+        res.status(400).json({message: "Invalid request body"})
+    }
+    else {
+        next()
+    }
+
 }
 router.use(errorLogger); //logs errors
 router.use(errorResponder); //responds to errors

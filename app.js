@@ -13,7 +13,7 @@ const dotenv =  require("dotenv").config();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended: false}));
-const data = require('./Data/fake-data'); //importing data from fake-data.js
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

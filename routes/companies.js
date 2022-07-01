@@ -1,49 +1,43 @@
 /**
- * Route for /companies URLs, handles different HTML functions
+ * +Route for /companies URLs, handles different HTML functions
  * @author Jake Harmon
  */
+
 const express = require("express")
 const router = express.Router()
 const dotenv = require("dotenv").config()
 const utility = require("../Utilities.js") //importing functions from Utilities.js
-const Company = require("../models/company")//importing model for database documents
-
-// Connecting to database
-const mongoose = require("mongoose")
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true })
-const db = mongoose.connection
-db.on("error", (error) => console.error(error))
-db.once("open", () => console.log("Connected to database"))
+const Company = require("../models/company") //importing model for database documents
+const db = require("../database/db.js") //database variable
 
 /**
- *+GET Allows client to get the data of specific companies
+ *>GET Allows client to get the data of specific companies or all companies
  */
 router.get("", async (req, res) => {
     //returns all companies in database
     try {
         const companies = await Company.find() //finds all documents mathcing copmany schema
         res.status(200).json(companies)
-    } catch (error) {
-        console.error(error)
+    } catch (err) {
+        console.error(err)
         // handle the error
     }
 })
 
-
-router.get("/:id", queryValidate, idValidate, getCompany, async (req, res) => {
+router.get("/:id", idValidate, getCompany, async (req, res) => {
     //returns a company from the database
     try {
-        res.status(200).send(res.company)
-    } catch (error) {
-        res.send(err);
+        res.status(200).send(res.company) //sending company in response 
+    } catch (err) {
+        next(err)
     }
 })
 
 /**
- *+POST Allows the client to post a new company object into the fakeData array
+ *>POST Allows the client to post a new company object into the fakeData array
  */
-router.post("/", putValidate, async (req, res) => {
-    const company = new Company({
+router.post("/", putValidate, isDuplicateDoc,  async (req, res, next) => {
+    const company = new Company({ //creating new company document
         compId: req.body.compId,
         name: req.body.name,
         email: req.body.email,
@@ -52,41 +46,36 @@ router.post("/", putValidate, async (req, res) => {
         location: req.body.location,
     })
     try {
-        const newCompany = await company.save()
-        res.status(201).json(newCompany)
-    } catch (error) {
-        next(new InvalidCompanyError())
+        const newCompany = await company.save() //saving new document to database
+        res.status(201).json({ message: "New company document created" })
+    } catch (err) {
+        next(err)
     }
 })
 
 /**
- *+DELETE Allows the client to delete a company object that is in the fakeData array
+ *>DELETE Allows the client to delete a company object that is in the fakeData array
  */
 router.delete("/:id", idValidate, getCompany, async (req, res) => {
-    try {
-        const outcome = await Company.deleteOne({ compId: req.params.id })
-        res.status(200).json(outcome)
-    } catch (err) {
-        res.status(404).json("Unable to delete document")
-    }
+   // try {
+        const outcome = await Company.deleteOne({ compId: req.params.id }) //deleting document from database
+        res.status(200).json({ message: "Document deleted succesfully" })
+    // } catch (err) {
+    //     next(err)
+    // }
 })
 
 /**
- *+PATCH Allows the client to change instance variables of a company currently in the fakeData array
+ *>PATCH Allows the client to change instance variables of a company currently in the fakeData array
  */
-router.patch(
-    "/:id",
-    idValidate,
-    patchValidate,
-    getCompany,
-    async (req, res) => {
-        const update = req.body
-        db.collection("companies").updateOne(
-            { compId: req.params.id },
-            { $set: update }
-        )
-        res.json({ message: "document succesfuly updated" })
-    }
+router.patch("/:id", idValidate, patchValidate, getCompany, isDuplicateDoc,  async (req, res) => {
+    const update = req.body
+    await Company.updateOne( //updating document with updates passed in the body 
+        { compId: req.params.id },
+        { $set: update }
+    )
+    res.json({ message: "document succesfuly updated" })
+}
 )
 
 const {
@@ -106,9 +95,8 @@ const {
     DoesntExistError,
 } = require("../errors")
 
-
 /**
- *-Function used to test if an id is valid
+ *=Function used to test if an id is valid
  * @param {} req
  * @param {*} res
  * @param {*} next
@@ -123,7 +111,7 @@ function idValidate(req, res, next) {
     }
 }
 /**
- *-Function that tests whether a query is valid
+ *=Function that tests whether a query is valid
  * @param {} req
  * @param {*} res
  * @param {*} next
@@ -154,9 +142,8 @@ function queryValidate(req, res, next) {
     }
 }
 
-
 /**
- *-Function that tests whether a put is valid
+ *=Function that tests whether a put is valid
  * @param {} req
  * @param {*} res
  * @param {*} next
@@ -172,13 +159,16 @@ function putValidate(req, res, next) {
         curr.phoneNumber == undefined
     ) {
         next(new InvalidCompanyError())
+    }
+    else if(!utility.isValidId(curr.compId)) {
+        next(new InvalidIdError(curr.compId))
     } else {
         next()
     }
 }
 
 /**
- *-Function that tests whether a patch is valid
+ *=Function that tests whether a patch is valid
  * @param {} req
  * @param {*} res
  * @param {*} next
@@ -194,21 +184,22 @@ function patchValidate(req, res, next) {
         curr.phoneNumber == undefined
     ) {
         next(new InvalidCompanyError())
+    }
+    else if(curr.compId != undefined && !(utility.isValidId(curr.compId))) {
+        next(new InvalidIdError(curr.compId))
     } else {
         next()
     }
 }
 
 /**
- *-Function that retrieves a company document based on the id given 
+ *=Function that retrieves a company document based on the id given
  * @param {} req
  * @param {*} res
  * @param {*} next
  */
 async function getCompany(req, res, next) {
     let company = undefined //company object
-    let obj = undefined
-
     try {
         company = await Company.find({ compId: req.params.id }) //finding company document in db with matching compId
         if (company.length == 0) {
@@ -220,6 +211,26 @@ async function getCompany(req, res, next) {
         // next(new DoesntExistError(req.params.id))
     }
     res.company = company //assigning company to res value so it can be accessed in other functions
+    next()
+}
+
+/**
+ *=Function that throws and error if a company doc with already exists with the same compId
+ * @param {} req
+ * @param {*} res
+ * @param {*} next
+ */
+async function isDuplicateDoc(req,res,next) {
+    let company = undefined //company object
+    try {
+        company = await Company.find({ compId: req.body.compId }) //finding company document in db with matching compId
+        if (company.length != 0) {
+            //simple validation, checks cursor length to see if empty
+            next(new DuplicateError(req.body.compId))
+        }
+    } catch (err) {
+        next(err)
+    }
     next()
 }
 router.use(errorLogger) //logs errors

@@ -7,6 +7,10 @@
 const express = require('express');
 const Company = require("./models/company");
 const { query } = require('express');
+const db = require("./database/db.js");
+
+//const { documentList } = require('./database/db.js');
+const { DuplicateError } = require('./errors');
 
 /**
  * Tests whether the given id is valid
@@ -179,12 +183,33 @@ function isValidSelectStr(str) {
 
 
 
-async function getCompanyQuery(req,res,next) {
-   
+async function isDuplicateId(res,req,next) {
+    const compId = req.params.id
+    for(let i = 0; i < documentList.length; i++) {
+        if(documentList[i].compId.localeCompare(compId) == 0) {
+            next(new DuplicateError(compId))
+        }
+    }
+    next()
+}
+
+async function isDuplicateIdBody( res,req,next) {
+    const documentList =  Company.find() //putting all documents in array
+
+    const compId = res.body.compId
+    console.log(documentList)
+    for(let i = 0; i < documentList.length; i++) {
+        console.log(documentList[i])
+        console.log(compId)
+        if(documentList[i].compId.localeCompare(compId) == 0) {
+            next(new DuplicateError(compId))
+        }
+    }
+    next()
 }
 
 
 
 
 
-module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr};
+module.exports = { replaceCompany, isValidId, removeFromArray, isIdDuplicate, isCompanyValid, getCompanyData, isValidSelectArray, isValidSelectStr, getCompanyDataStr, isDuplicateId, isDuplicateIdBody};

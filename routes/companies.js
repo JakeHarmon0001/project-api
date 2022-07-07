@@ -24,8 +24,9 @@ router.get("", async (req, res) => {
     }
 })
 
-router.get("/:id", idValidate, getCompany, async (req, res) => {
+router.get("/:id", idValidate, getCompany, compExists, async (req, res, next) => {
     //returns a company from the database
+    
     try {
         res.status(200).send(res.company) //sending company in response 
     } catch (err) {
@@ -206,12 +207,15 @@ async function getCompany(req, res, next) {
             //simple validation, checks cursor length to see if empty
             next(new DoesntExistError(id))
         }
+        console.log(JSON.stringify(company))
+        res.company = company
+        next()
     } catch (err) {
-        res.json(err)
+        next(new DoesntExistError(req.params.id))
         // next(new DoesntExistError(req.params.id))
     }
-    res.company = company //assigning company to res value so it can be accessed in other functions
-    next()
+     res.company = undefined //assigning company to res value so it can be accessed in other functions
+    // next()
 }
 
 /**
@@ -232,6 +236,18 @@ async function isDuplicateDoc(req,res,next) {
         next(err)
     }
     next()
+}
+
+async function compExists(req,res,next) {
+
+        console.log("test")
+    
+    if(JSON.stringify(res.company).localeCompare("{}") == 0) {
+        next(new DoesntExistError(req.params.id))
+    }
+    else {
+        next()
+    }
 }
 router.use(errorLogger) //logs errors
 router.use(errorResponder) //responds to errors

@@ -5,24 +5,25 @@
 
 const request = require("supertest")
 jest.setTimeout(1000000)
-jest.useFakeTimers();
 const app = require("../app")
-
+jest.useRealTimers() //using real timers so the tests work with the db
 /**
  * +Testing get function 
  */
 describe("GET test", () => {
   test("GET /", (done) => {
     request(app)
-    .get("/companies/0001")
+    .get("/companies/0101")
     .expect(200)
     .end((err, res) => {
       if (err) return done(err)
       return done()
     })
   })
+ 
 })
 
+jest.useRealTimers()
 describe("GET FAIL test", () => {
   test("GET FAIL /", (done) => {
     request(app)
@@ -34,16 +35,18 @@ describe("GET FAIL test", () => {
     })
   })
 })
+
+
 /**
  * +Testing post function
  */
+ jest.useRealTimers()
 describe("POST test", () => {
   test("Post /", (done) => {
     request(app)
     .post("/companies")
-    // .expect("Content-Type", /json/)
     .send({
-      id: "0040",
+      compId: "0063",
       name: "Test Company",
       email: "Test@gmail.com",
       owner: "Larry Selensky",
@@ -58,20 +61,20 @@ describe("POST test", () => {
   })
 })
 
+jest.useRealTimers()
 describe("POST FAIL test", () => {
   test("Post FAIL /", (done) => {
     request(app)
     .post("/companies")
-    // .expect("Content-Type", /json/)
     .send({
-      id: "0010",
+      compId: "0050",
       name: "Test Company",
       email: "Test@gmail.com",
       owner: "Larry Selensky",
       phoneNumber: "(800) 800 8000",
       location: "Knowwhere"
     })
-    .expect(404)
+    .expect(401)
     .end((err, res) => {
       if (err) return done(err)
       return done()
@@ -82,19 +85,21 @@ describe("POST FAIL test", () => {
 /**
  * +Testing Delete function
  */
-describe("DELETE test", () => {
-  test("Delete /", (done) => {
-    request(app)
-    .delete("/companies/0001")
-    .expect(200)
-    .end((err, res) => {
-      if (err) return done(err)
-      return done()
-    })
-  })
-})
+  jest.useRealTimers()
+ describe("DELETE test", () => {
+   test("Delete /", (done) => {
+     request(app)
+     .delete("/companies/0063")
+     .expect(200)
+     .end((err, res) => {
+       if (err) return done(err)
+       return done()
+     })
+   })
+ })
 
 describe("DELETE FAIL test", () => {
+  jest.useRealTimers()
   test("Delete FAIL /", (done) => {
     request(app)
     .delete("/companies/0000")
@@ -107,14 +112,14 @@ describe("DELETE FAIL test", () => {
 })
 
 /**
- * +Testing put function 
+ * +Testing patch function 
  */
-describe("PUT test", () => {
-  test("PUT /", (done) => {
+describe("PATCH test", () => {
+  jest.useRealTimers()
+  test("PATCH /", (done) => {
     request(app)
-    .put("/companies")
+    .patch("/companies/0070")
     .send({
-      id: "0010",
       name: "Test Company",
       email: "Test@gmail.com",
       owner: "Larry Selensky",
@@ -129,12 +134,12 @@ describe("PUT test", () => {
   })
 })
 
-describe("PUT FAIL test", () => {
-  test("PUT FAIL /", (done) => {
+describe("PATCH FAIL test", () => {
+  jest.useRealTimers()
+  test("PATCH FAIL /", (done) => {
     request(app)
-    .put("/companies")
+    .patch("/companies/1000")
     .send({
-      id: "0030",
       name: "Test Company",
       email: "Test@gmail.com",
       owner: "Larry Selensky",

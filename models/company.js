@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
-// const { Schema, model } = mongoose;
+const db = require("../database/db.js")
 
-const companySchema = new mongoose.Schema({
+const companySchema = new db.mongoose.Schema({
   compId: { type: String, required: true },
   name: { type: String, required: true }, 
   email: { type: String, required: true },
@@ -11,7 +10,4 @@ const companySchema = new mongoose.Schema({
   
 });
 
-
-//companySchema.index({id: "test", name: "test", email: "test", owner: "test", phoneNumber: "test", location: "test"});
-module.exports = mongoose.model('Company', companySchema);
-//module.exports =  {companyModel, companySchema};
+module.exports = db.mongoose.model('Company', companySchema);

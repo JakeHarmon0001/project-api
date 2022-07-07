@@ -12,15 +12,9 @@ test('returns false for invald Id 001', () => {
 test('returns false for invald Id -001', () => {
   expect(utility.isValidId('-001')).toBe(false)
 })
-// test('returns false for invald Id iiii', () => {
-//   expect(utility.isValidId('iiii')).toBe(false)
-// })
 test('returns false for invald Id iiii', () => {
   expect(utility.isValidId('')).toBe(false)
 })
-/**
- * +
- */
 
 
 

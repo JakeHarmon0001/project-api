@@ -9,11 +9,12 @@ const dotenv = require("dotenv").config()
 const utility = require("../Utilities.js") //importing functions from Utilities.js
 const Company = require("../models/company") //importing model for database documents
 const db = require("../database/db.js") //database variable
-
+const jwt = require("jsonwebtoken")
+const accessTokenSecret = '61021'
 /**
  *>GET Allows client to get the data of specific companies or all companies
  */
-router.get("", async (req, res) => {
+router.get("", authenticateJWT, async (req, res, next) => {
     //returns all companies in database
     try {
         const companies = await Company.find() //finds all documents mathcing copmany schema
@@ -24,7 +25,7 @@ router.get("", async (req, res) => {
     }
 })
 
-router.get("/:id", idValidate, getCompany, compExists, async (req, res, next) => {
+router.get("/:id",authenticateJWT, idValidate, getCompany, compExists, async (req, res, next) => {
     //returns a company from the database
     
     try {
@@ -37,7 +38,7 @@ router.get("/:id", idValidate, getCompany, compExists, async (req, res, next) =>
 /**
  *>POST Allows the client to post a new company object into the fakeData array
  */
-router.post("/", putValidate, isDuplicateDoc,  async (req, res, next) => {
+router.post("/",authenticateJWT, putValidate, isDuplicateDoc,  async (req, res, next) => {
     const company = new Company({ //creating new company document
         compId: req.body.compId,
         name: req.body.name,
@@ -57,7 +58,7 @@ router.post("/", putValidate, isDuplicateDoc,  async (req, res, next) => {
 /**
  *>DELETE Allows the client to delete a company object that is in the fakeData array
  */
-router.delete("/:id", idValidate, getCompany, async (req, res) => {
+router.delete("/:id",authenticateJWT, idValidate, getCompany, async (req, res) => {
    // try {
         const outcome = await Company.deleteOne({ compId: req.params.id }) //deleting document from database
         res.status(200).json({ message: "Document deleted succesfully" })
@@ -69,7 +70,7 @@ router.delete("/:id", idValidate, getCompany, async (req, res) => {
 /**
  *>PATCH Allows the client to change instance variables of a company currently in the fakeData array
  */
-router.patch("/:id", idValidate, patchValidate, getCompany, isDuplicateDoc,  async (req, res) => {
+router.patch("/:id",authenticateJWT, idValidate, patchValidate, getCompany, isDuplicateDoc,  async (req, res) => {
     const update = req.body
     await Company.updateOne( //updating document with updates passed in the body 
         { compId: req.params.id },
@@ -249,6 +250,24 @@ async function compExists(req,res,next) {
         next()
     }
 }
+
+async function authenticateJWT (req, res, next) {
+    const authHeader = req.headers.authorization
+    
+    if (authHeader) {
+      const token = authHeader.split(" ")[1]
+  
+      jwt.verify(token, accessTokenSecret, (err, user) => {
+        if (err) {
+          return res.sendStatus(403)
+        }
+        req.user = user
+        next()
+      })
+    } else {
+      res.sendStatus(401)
+    }
+  }
 router.use(errorLogger) //logs errors
 router.use(errorResponder) //responds to errors
 module.exports = router

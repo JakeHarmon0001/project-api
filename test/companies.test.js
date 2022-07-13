@@ -1,5 +1,5 @@
 /**
- * Contains test for functions in companies
+ * Contains test for functions in companies.js
  * @author Jake Harmon
  */
 

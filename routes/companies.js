@@ -10,23 +10,48 @@ const utility = require("../Utilities.js") //importing functions from Utilities.
 const Company = require("../models/company") //importing model for database documents
 const db = require("../database/db.js") //database variable
 const jwt = require("jsonwebtoken")
+const auth = require("../auth.js")
 const accessTokenSecret = '61021'
 /**
  *>GET Allows client to get the data of specific companies or all companies
  */
-router.get("", authenticateJWT, async (req, res, next) => {
+router.get("", auth.authenticateJWT, async (req, res, next) => {
     //returns all companies in database
+
+
+  // destructure page and limit and set default values
+  const { page = 1, limit = 10 } = req.query;
+
+
+    // execute query with page and limit values
+    
+
+    // get total documents in the Posts collection 
+//    const count = await Company.countDocuments()
+
+    // return response with posts, total pages, and current page
+
     try {
+
+        const company = await Company.find()
+      .limit(10)
+      .skip((page - 1) * limit)
+      .exec();
+
+      const count = await Company.countDocuments()
         const companies = await Company.find() //finds all documents mathcing copmany schema
-        res.status(200).json(companies)
+        res.status(200).json( {company,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit)})
     } catch (err) {
         console.error(err)
         // handle the error
     }
 })
 
-router.get("/:id",authenticateJWT, idValidate, getCompany, compExists, async (req, res, next) => {
+router.get("/:id",auth.authenticateJWT, idValidate, getCompany, compExists, async (req, res, next) => {
     //returns a company from the database
+    
     
     try {
         res.status(200).send(res.company) //sending company in response 
@@ -38,7 +63,7 @@ router.get("/:id",authenticateJWT, idValidate, getCompany, compExists, async (re
 /**
  *>POST Allows the client to post a new company object into the fakeData array
  */
-router.post("/",authenticateJWT, putValidate, isDuplicateDoc,  async (req, res, next) => {
+router.post("/",auth.authenticateJWT, putValidate, isDuplicateDoc,  async (req, res, next) => {
     const company = new Company({ //creating new company document
         compId: req.body.compId,
         name: req.body.name,
@@ -58,7 +83,7 @@ router.post("/",authenticateJWT, putValidate, isDuplicateDoc,  async (req, res, 
 /**
  *>DELETE Allows the client to delete a company object that is in the fakeData array
  */
-router.delete("/:id",authenticateJWT, idValidate, getCompany, async (req, res) => {
+router.delete("/:id",auth.authenticateJWT, idValidate, getCompany, async (req, res) => {
    // try {
         const outcome = await Company.deleteOne({ compId: req.params.id }) //deleting document from database
         res.status(200).json({ message: "Document deleted succesfully" })
@@ -70,7 +95,7 @@ router.delete("/:id",authenticateJWT, idValidate, getCompany, async (req, res) =
 /**
  *>PATCH Allows the client to change instance variables of a company currently in the fakeData array
  */
-router.patch("/:id",authenticateJWT, idValidate, patchValidate, getCompany, isDuplicateDoc,  async (req, res) => {
+router.patch("/:id",auth.authenticateJWT, idValidate, patchValidate, getCompany, isDuplicateDoc,  async (req, res) => {
     const update = req.body
     await Company.updateOne( //updating document with updates passed in the body 
         { compId: req.params.id },
@@ -251,23 +276,23 @@ async function compExists(req,res,next) {
     }
 }
 
-async function authenticateJWT (req, res, next) {
-    const authHeader = req.headers.authorization
+// async function authenticateJWT (req, res, next) {
+//     const authHeader = req.headers.authorization
     
-    if (authHeader) {
-      const token = authHeader.split(" ")[1]
+//     if (authHeader) {
+//       const token = authHeader.split(" ")[1]
   
-      jwt.verify(token, accessTokenSecret, (err, user) => {
-        if (err) {
-          return res.sendStatus(403)
-        }
-        req.user = user
-        next()
-      })
-    } else {
-      res.sendStatus(401)
-    }
-  }
+//       jwt.verify(token, accessTokenSecret, (err, user) => {
+//         if (err) {
+//           return res.sendStatus(403)
+//         }
+//         req.user = user
+//         next()
+//       })
+//     } else {
+//       res.sendStatus(401)
+//     }
+//   }
 router.use(errorLogger) //logs errors
 router.use(errorResponder) //responds to errors
 module.exports = router

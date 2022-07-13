@@ -1,3 +1,7 @@
+/**
+ * Schema for company documents
+ */
+
 const db = require("../database/db.js")
 
 const companySchema = new db.mongoose.Schema({

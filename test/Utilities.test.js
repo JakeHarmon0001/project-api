@@ -1,3 +1,7 @@
+/**
+ * Test suite for utilities' functions
+ */
+
 const utility = require("../Utilities.js"); //importing functions from Utilities.js
 
 /**

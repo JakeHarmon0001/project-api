@@ -11,6 +11,8 @@ const Company = require("../models/company") //importing model for database docu
 const db = require("../database/db.js") //database variable
 const jwt = require("jsonwebtoken")
 const auth = require("../auth.js")
+
+
 const accessTokenSecret = '61021'
 /**
  *>GET Allows client to get the data of specific companies or all companies
@@ -24,13 +26,6 @@ router.get("", auth.authenticateJWT, async (req, res, next) => {
 
 
     // execute query with page and limit values
-    
-
-    // get total documents in the Posts collection 
-//    const count = await Company.countDocuments()
-
-    // return response with posts, total pages, and current page
-
     try {
 
         const company = await Company.find()

@@ -11,10 +11,13 @@ const bodyParser = require("body-parser")
 const url = require("url")
 const querystring = require("querystring")
 const dotenv = require("dotenv").config()
+const express_graphql = require('express-graphql')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+const Company = require("./models/company")
 app.use(express.urlencoded({ extended: false }))
-
+const {graphqlHTTP} = require('express-graphql')
+//const {schema} = require("./routes/graphql")
 const accessTokenSecret = '61021'
 
 app.get("/login", (req, res) => {
@@ -22,8 +25,9 @@ app.get("/login", (req, res) => {
 })
 
 const companyRouter = require("./routes/companies")
-app.use("/companies", companyRouter) //using the company route
-
+app.use("api/companies", companyRouter) //using the company route
+// const graphQLRouter = require("./routes/graphql")
+// app.use('/graphql',graphQLRoute)
 
 const server = app.listen(port, () => {
   console.log(`app.js listening on port ${port}`)
@@ -65,21 +69,14 @@ const users = [
   }
 ]
 
-// const authenticateJWT = (req, res, next) => {
-//   const authHeader = req.headers.authorization
+/**
+ * graphql endpoint
+ */
+ const temp = require('./routes/graphql')
+ const schema = temp.schema
+ app.use('/graphql', graphqlHTTP({
+    schema,
+    graphiql:true
+ }))
 
-//   if (authHeader) {
-//     const token = authHeader.split(" ")[1]
 
-//     jwt.verify(token, accessTokenSecret, (err, user) => {
-//       if (err) {
-//         return res.sendStatus(403)
-//       }
-
-//       req.user = user
-//       next()
-//     })
-//   } else {
-//     res.sendStatus(401)
-//   }
-// }
